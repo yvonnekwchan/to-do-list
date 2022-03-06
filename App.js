@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, StyleSheet, Text, StatusBar, Dimensions, Touchable, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import Task from './components/Task';
-import Schedule from './components/Schedule';
+import ScheduleOption from './components/ScheduleOption';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Header } from 'react-navigation-stack';
 import KeyboardListener from 'react-native-keyboard-listener';
+import * as Haptics from 'expo-haptics';
 
 function TasksScreen() {
   const [task, setTask] = useState();
+  const [schedule, setSchedule] = useState("default");
   const [taskItems, setTaskItems] = useState([]);
   const [taskStatus, setTaskStatus] = useState([]);
-  const [iconName, setIconName] = useState("");
+  const [taskSchedules, setTaskSchedules] = useState([]);
   const [keyboardStatus, setKeyboardStatus] = useState("hide");
 
   const completeTask = (index) => {
@@ -21,6 +23,7 @@ function TasksScreen() {
       itemsCopy[index] = "pending"
     } else {
       itemsCopy[index] = "completed";
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     setTaskStatus(itemsCopy);
   }
@@ -41,6 +44,16 @@ function TasksScreen() {
       setTaskItems([...taskItems, task])
       setTaskStatus([...taskStatus, "pending"])
       setTask(null);
+      setTaskSchedules([...taskSchedules, schedule])
+      setSchedule("default");
+    }
+  }
+
+  const assignSchedule = (option) => {
+    if (schedule != option) {
+      setSchedule(option);
+    } else {
+      setSchedule("default");
     }
   }
 
@@ -54,7 +67,7 @@ function TasksScreen() {
             {
               taskItems.map((item, index) => {
                 return (
-                  <Task text={item} status={taskStatus[index]} index={index} onPressSquare={() => completeTask(index)} onPressCircular={() => deleteTask(index)} />
+                  <Task text={item} status={taskStatus[index]} schedule={taskSchedules[index]} index={index} onPressSquare={() => completeTask(index)} onPressCircular={() => deleteTask(index)} />
                 )
               })
             }
@@ -67,13 +80,17 @@ function TasksScreen() {
           style={styles.userInputWrapper}
         >
           <View style={[styles.OptionWrapper, keyboardStatus == "hide" ? styles.HideOptions : styles.ShowOptions]}>
-            <Schedule text="Later Today" />
-            <Schedule text="This evening" />
+            <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule("Later today")}>
+              <ScheduleOption text="Later today" selection={schedule} />
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule("This evening")}>
+              <ScheduleOption text="This evening" selection={schedule}/>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.writeTaskWrapper}>
             <TextInput style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
-            <TouchableOpacity onPress={() => handleAddTask()}>
+            <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
               <View style={[styles.addWrapper, task != "" && task != null ? styles.blueBgColor : styles.greyBgColor]}>
                 <Text style={styles.addText}><Ionicons name={keyboardStatus == "hide" ? "add" : "arrow-up-outline"} size={24} color="#fff" /></Text>
               </View>

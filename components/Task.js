@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import KeyboardListener from 'react-native-keyboard-listener';
 import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
-import { borderColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
+import * as Haptics from 'expo-haptics';
 
 const Task = (props) => {
     const [keyboardStatus, setKeyboardStatus] = useState("hide");
@@ -12,7 +12,7 @@ const Task = (props) => {
             <View style={[styles.itemLeft, props.status == "completed" ? styles.completed : null]}>
                 <TouchableOpacity disabled={keyboardStatus == "show" ? true : false} key={props.index} onPress={props.onPressSquare}>
                     {props.status != "completed" &&
-                        <View style={[styles.square, keyboardStatus == "show" ? styles.dimBorderColor : brightBorderColor]}></View>
+                        <View style={styles.square}></View>
                     }
                     {props.status == "completed" &&
                         <Text style={styles.checksquare}><AntDesign name="checksquare" size={18} color="black" /></Text>
@@ -25,8 +25,9 @@ const Task = (props) => {
                             style={styles.strike}
                         />
                     }
-                    <View>
-                        <Text style={[styles.itemText, props.status == "completed" ? styles.addStrike : null]}>{props.text}</Text>
+                    <View style={{ flexDirection: 'row'}}>
+                        <Text style={styles.itemText}>{props.text}</Text>
+                        <Text style={styles.itemText}>{props.schedule}</Text>
                     </View>
                 </View>
             </View>
@@ -65,14 +66,9 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 15,
         borderWidth: 1,
-        position: 'relative'
-        //backgroundColor: '#55BCF6'
-    },
-    dimBorderColor: {
-        borderColor: '#797979'
-    },
-    brightBorderColor: {
-        borderColor: '#4A4A4A'
+        position: 'relative',
+        borderColor: '#444444',
+        opacity: 0.7
     },
     checksquare: {
         marginRight: 13,
@@ -94,7 +90,7 @@ const styles = StyleSheet.create({
     itemText: {
         maxWidth: '100%',
         fontSize: 17,
-        paddingEnd: 50
+        // paddingEnd: 50
     },
     addStrike: {
         textDecorationLine: 'line-through',
