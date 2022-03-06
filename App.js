@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, StyleSheet, Text, StatusBar, Dimensions, Touchable, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import Task from './components/Task';
+import Schedule from './components/Schedule';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -12,36 +13,33 @@ function TasksScreen() {
   const [taskItems, setTaskItems] = useState([]);
   const [taskStatus, setTaskStatus] = useState([]);
   const [iconName, setIconName] = useState("");
-  const [keyboardStatus, setKeyboardStatus] = useState();
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setKeyboardStatus("show");
-    });
-    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardStatus("hide");
-    });
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+  const [keyboardStatus, setKeyboardStatus] = useState("hide");
 
   const completeTask = (index) => {
+    let itemsCopy = [...taskStatus];
+    if (itemsCopy[index] == "completed") {
+      itemsCopy[index] = "pending"
+    } else {
+      itemsCopy[index] = "completed";
+    }
+    setTaskStatus(itemsCopy);
+  }
+
+  const deleteTask = (index) => {
     let itemsCopy = [...taskItems];
     itemsCopy.splice(index, 1);
     setTaskItems(itemsCopy);
-    // let itemsCopy = [];
-    // itemsCopy.fill("pending", 0, index);
-    // itemsCopy[index] = "completed";
-    // setTaskStatus({ taskStatus: itemsCopy });
+
+    let statusCopy = [...taskStatus];
+    statusCopy.splice(index, 1);
+    setTaskStatus(statusCopy);
   }
 
   const handleAddTask = () => {
     if (task != "" && task != null) {
       //Keyboard.dismiss();
       setTaskItems([...taskItems, task])
+      setTaskStatus([...taskStatus, "pending"])
       setTask(null);
     }
   }
@@ -56,9 +54,7 @@ function TasksScreen() {
             {
               taskItems.map((item, index) => {
                 return (
-                  <TouchableOpacity key={index} onPress={() => completeTask(index)}>
-                    <Task text={item} />
-                  </TouchableOpacity>
+                  <Task text={item} status={taskStatus[index]} index={index} onPressSquare={() => completeTask(index)} onPressCircular={() => deleteTask(index)} />
                 )
               })
             }
@@ -71,12 +67,8 @@ function TasksScreen() {
           style={styles.userInputWrapper}
         >
           <View style={[styles.OptionWrapper, keyboardStatus == "hide" ? styles.HideOptions : styles.ShowOptions]}>
-            <TouchableOpacity>
-              <View style={styles.scheduleTimeWrapper}>
-                <Text><MaterialCommunityIcons name="bell-outline" size={24} color="#9598A1" /></Text>
-                <Text style={styles.scheduleTime}>Tomorrow</Text>
-              </View>
-            </TouchableOpacity>
+            <Schedule text="Later Today" />
+            <Schedule text="This evening" />
           </View>
 
           <View style={styles.writeTaskWrapper}>
@@ -181,21 +173,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     flexDirection: 'row',
     height: 50,
-    paddingHorizontal: 17,
+    paddingHorizontal: 12,
     paddingVertical: 10,
-  },
-  scheduleTimeWrapper: {
-    backgroundColor: '#F2F2F2',
-    height: 30,
-    borderRadius: 60,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-  },
-  scheduleTime: {
-    color: '#9598A1',
-    fontSize: 16
   },
   userInputWrapper: {
     flexDirection: 'column',
