@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Animated, Dimensions, StyleSheet } from 'react-native';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+// import { PanGestureHandler } from 'react-native-gesture-handler';
 import { IconButton, Portal } from 'react-native-paper';
 import useKeyboardHeight from 'react-native-use-keyboard-height';
 
