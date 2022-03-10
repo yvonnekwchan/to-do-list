@@ -2,12 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Keyboard } from 'react-native';
 import { Ionicons, EvilIcons, SimpleLineIcons } from '@expo/vector-icons';
 
-const Schedule = (props) => {
+const ScheduleOption = (props) => {
     return (
-
-        <View style={[styles.scheduleTaskWrapper, props.selection == props.text ? styles.blueBgColor : styles.greyBgColor]}>
-            <Text><EvilIcons name="bell" size={24} color={props.selection == props.text ? "#FFF" : "#9598A1"} /></Text>
-            <Text style={[{ fontSize: 16 }, props.selection == props.text ? styles.whiteText : styles.blackText]}>{props.text}</Text>
+        <View style={[styles.scheduleTaskWrapper, props.selection == props.value ? styles.blueBgColor : styles.greyBgColor]}>
+            <Text><EvilIcons name="bell" size={24} color={props.selection == props.value ? "#FFF" : "#9598A1"} /></Text>
+            <Text style={[{ fontSize: 16 }, props.selection == props.value ? styles.whiteText : styles.blackText]}>{props.text}</Text>
         </View>
     )
 }
@@ -37,4 +36,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Schedule;
+export default ScheduleOption;

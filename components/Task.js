@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
 import KeyboardListener from 'react-native-keyboard-listener';
 import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
+import Schedule from './Schedule';
 
 const Task = (props) => {
     const [keyboardStatus, setKeyboardStatus] = useState("hide");
@@ -27,7 +27,7 @@ const Task = (props) => {
                     }
                     <View style={{ flexDirection: 'row'}}>
                         <Text style={styles.itemText}>{props.text}</Text>
-                        <Text style={styles.itemText}>{props.schedule}</Text>
+                        <Schedule text={props.schedule} status={props.status}/>
                     </View>
                 </View>
             </View>
@@ -48,7 +48,10 @@ const Task = (props) => {
 
 const styles = StyleSheet.create({
     item: {
-        padding: 15,
+        paddingBottom: 15,
+        paddingTop: 15,
+        paddingLeft: 5,
+        paddingRight: 18,
         borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
@@ -90,17 +93,17 @@ const styles = StyleSheet.create({
     itemText: {
         maxWidth: '100%',
         fontSize: 17,
-        // paddingEnd: 50
+        paddingEnd: 5
     },
     addStrike: {
         textDecorationLine: 'line-through',
-        textDecorationStyle: 'solid',
+        textDecorationStyle: 'solid'
     },
     completed: {
         opacity: 0.3
     },
     strike: {
-        width: 270,
+        width: '93%',
         zIndex: 1,
         opacity: 0.5,
         borderBottomColor: 'black',
