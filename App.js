@@ -32,8 +32,8 @@ function HomeTabs() {
             // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: '#4A4A4A',
-          tabBarInactiveTintColor: '#A2A2A2',
+          tabBarActiveTintColor: '#F6A02D',
+          tabBarInactiveTintColor: '#F6C481',
         })}>
       <Tab.Screen
         name="Tasks"
@@ -54,9 +54,7 @@ function App() {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Feed"
-        tabBarOptions={{
-          activeTintColor: '#42f44b',
-        }}>
+      >
         <Stack.Screen
           name="Home"
           component={HomeTabs}
@@ -69,7 +67,14 @@ function App() {
           name="Details"
           component={DetailsScreen}
           options={{
-            presentation: 'modal', title: 'Details Page'
+            presentation: 'modal', title: 'Details Page', headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            title: 'Profile Page'
           }}
         />
       </Stack.Navigator>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Platform, SafeAreaView, StyleSheet, Text, Dimensions, Touchable, Button, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import Task from '../components/Task';
 import ScheduleOption from '../components/ScheduleOption';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { Header } from 'react-navigation-stack';
 import KeyboardListener from 'react-native-keyboard-listener';
 import useKeyboardHeight from 'react-native-use-keyboard-height';
@@ -69,15 +69,15 @@ const HomeScreen = ({ navigation }) => {
   const getDisplayText = (assignedSchedule) => {
     switch (assignedSchedule) {
       case laterToday:
-        return (today.getHours() + 4) + ":00";
+        return "Today, " + (today.getHours() + 4) + ":00";
       case thisEvening:
-        return "18:00";
+        return "Today, 18:00";
       case tomorrow:
         return tmr.toLocaleString('en-us', { weekday: 'long' }) + ", 09:00";
       case nextWeek:
         return "Sunday, 09:00";
       case "default":
-        return "default"
+        return "Today"
       default:
         return ""
     }
@@ -213,19 +213,24 @@ const HomeScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={[styles.container, keyboardStatus == "hide" ? styles.brightBackground : styles.dimBackground]}>
         <View style={styles.tasksWrapper}>
-          <Text style={[styles.sectionTitle, keyboardStatus == "hide" ? styles.brightColor : styles.dimColor]}>ALL TASKS</Text>
+          <Text style={[styles.sectionTitle, keyboardStatus == "hide" ? styles.brightColor : styles.dimColor]}>
+            <MaterialCommunityIcons name="text" size={32} color="#4A4A4A" />
+            <Text style={{fontSize: 24}}>ALL TASKS</Text>
+          </Text>
           <View style={styles.items}>
             <View style={styles.header}>
-              <Text style={styles.heading}>Today</Text>
+              <Text style={styles.heading}>TODAY</Text>
               <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('Details')}>
-                <Text><Ionicons name={"add"} size={26} color="#444" /></Text>
+                <View style={styles.addScheduledTaskWrapper}>
+                  <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
+                </View>
               </TouchableOpacity>
             </View>
             <View style={styles.taskList}>
               {
                 todayTaskItems.map((item, index) => {
                   return (
-                    <Task text={item} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} index={index} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
+                    <Task text={item} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
                   )
                 })
               }
@@ -233,16 +238,18 @@ const HomeScreen = ({ navigation }) => {
           </View>
           <View style={styles.items}>
             <View style={styles.header}>
-              <Text style={styles.heading}>Tomorrow</Text>
+              <Text style={styles.heading}>TOMORROW</Text>
               <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('Details')}>
-                <Text><Ionicons name={"add"} size={26} color="#444" /></Text>
+                <View style={styles.addScheduledTaskWrapper}>
+                  <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
+                </View>
               </TouchableOpacity>
             </View>
             <View style={styles.taskList}>
               {
                 tomorrowTaskItems.map((item, index) => {
                   return (
-                    <Task text={item} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} index={index} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
+                    <Task text={item} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
                   )
                 })
               }
@@ -250,16 +257,19 @@ const HomeScreen = ({ navigation }) => {
           </View>
           <View style={styles.items}>
             <View style={styles.header}>
-              <Text style={styles.heading}>Upcoming</Text>
+              <Text style={styles.heading}>UPCOMING</Text>
               <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('Details')}>
-                <Text><Ionicons name={"add"} size={26} color="#444" /></Text>
+                {/* …<Text><Ionicons name={"add"} size={26} color="#555" /></Text> */}
+                <View style={styles.addScheduledTaskWrapper}>
+                  <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
+                </View>
               </TouchableOpacity>
             </View>
             <View style={styles.taskList}>
               {
                 nextWeekTaskItems.map((item, index) => {
                   return (
-                    <Task text={item} status={nextWeekTaskStatus[index]} schedule={getDisplayText(nextWeekTaskSchedules[index])} index={index} onPressSquare={() => completeTask(index, nextWeekTaskSchedules[index])} onPressCircular={() => deleteTask(index, nextWeekTaskSchedules[index])} />
+                    <Task text={item} status={nextWeekTaskStatus[index]} schedule={getDisplayText(nextWeekTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, nextWeekTaskSchedules[index])} onPressCircular={() => deleteTask(index, nextWeekTaskSchedules[index])} />
                   )
                 })
               }
@@ -267,10 +277,6 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <Button
-          onPress={() => navigation.navigate('Details')}
-          title="Open Modal"
-        />
         <KeyboardAvoidingView
           // keyboardVerticalOffset={Header.HEIGHT}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -307,8 +313,8 @@ const HomeScreen = ({ navigation }) => {
             <View style={styles.writeTaskWrapper}>
               <TextInput style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
               <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
-                <View style={[styles.addWrapper, task != "" && task != null ? styles.blueBgColor : styles.greyBgColor]}>
-                  <Text style={styles.addText}><Ionicons name={keyboardStatus == "hide" ? "add" : "arrow-up-outline"} size={24} color="#fff" /></Text>
+                <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
+                  <Ionicons name={keyboardStatus == "hide" ? "add" : "arrow-up-outline"} size={24} color={task != "" && task != null ? "#FFF": "#4A4A4A" } />
                 </View>
               </TouchableOpacity>
             </View>
@@ -341,18 +347,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  bottomSheetContainer: {
-    flex: 1,
-    backgroundColor: "#808080",
-    alignItems: "center",
-    justifyContent: "center",
-  },
   brightBackground: {
     backgroundColor: '#FFF',
   },
-  dimBackground: {
-    backgroundColor: '#808080',
-  },
+  // dimBackground: {
+  //   backgroundColor: '#808080',
+  // },
   tasksWrapper: {
     paddingTop: 60,
     paddingHorizontal: 20,
@@ -360,7 +360,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '500',
-    textAlign: "center",
+    textAlign: "left",
+    marginBottom: 10
   },
   brightColor: {
     color: "#4A4A4A"
@@ -372,16 +373,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   heading: {
-    fontSize: 21,
-    fontWeight: "600",
+    fontSize: 23,
+    fontWeight: "500",
     paddingLeft: 5,
+    marginBottom: 15
   },
   addIcon: {
     marginLeft: 'auto'
   },
   items: {
-    marginTop: 30,
-    marginBottom: 10,
+    marginTop: 20,
   },
   taskList: {
     flexDirection: 'column-reverse'
@@ -403,7 +404,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#ECECEC'
+    backgroundColor: '#FFD8AB'
   },
   input: {
     paddingVertical: 10,
@@ -418,6 +419,20 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 6
   },
+  addScheduledTaskWrapper: {
+    width: 30,
+    height: 30,
+    backgroundColor: '#F6A02D',
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#F6A02D',
+    borderWidth: 1,
+    shadowColor: '#F6A02D',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 0.6,
+    shadowRadius: 5,
+  },
   addWrapper: {
     width: 40,
     height: 40,
@@ -428,11 +443,11 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     marginRight: 5
   },
-  greyBgColor: {
-    backgroundColor: '#D2D2D2',
+  whiteBgColor: {
+    backgroundColor: '#FFF',
   },
-  blueBgColor: {
-    backgroundColor: '#0083FF',
+  orangeBgColor: {
+    backgroundColor: '#F6A02D',
   },
   addText: {
 

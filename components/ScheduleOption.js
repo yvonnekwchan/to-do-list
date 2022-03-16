@@ -4,8 +4,8 @@ import { Ionicons, EvilIcons, SimpleLineIcons } from '@expo/vector-icons';
 
 const ScheduleOption = (props) => {
     return (
-        <View style={[styles.scheduleTaskWrapper, props.selection == props.value ? styles.blueBgColor : styles.greyBgColor]}>
-            <Text><EvilIcons name="bell" size={24} color={props.selection == props.value ? "#FFF" : "#9598A1"} /></Text>
+        <View style={[styles.scheduleTaskWrapper, props.selection == props.value ? styles.orangeBgColor : styles.whiteBgColor]}>
+            <Text><EvilIcons name="bell" size={24} color={props.selection == props.value ? "#FFF" : "#F6A02D"} /></Text>
             <Text style={[{ fontSize: 16 }, props.selection == props.value ? styles.whiteText : styles.blackText]}>{props.text}</Text>
         </View>
     )
@@ -19,17 +19,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         paddingHorizontal: 12,
-        marginRight: 5
+        marginRight: 5,
+        borderWidth: 1
     },
-    greyBgColor: {
-        backgroundColor: '#F2F2F2',
+    whiteBgColor: {
+        borderColor: "#FED3A3",
+        backgroundColor: '#FFF',
     },
-    blueBgColor: {
-        backgroundColor: '#0083FF',
+    orangeBgColor: {
+        borderColor: "#F6A02D",
+        backgroundColor: '#F6A02D',
     },
     blackText: {
-        color: '#9598A1',
-
+         color: '#F6A02D',
+        // color: '#9598A1',
     },
     whiteText: {
         color: '#FFF'

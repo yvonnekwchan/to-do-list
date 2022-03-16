@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
 import KeyboardListener from 'react-native-keyboard-listener';
-import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
-import Schedule from './Schedule';
+import { Ionicons, MaterialCommunityIcons, AntDesign, FontAwesome5 } from '@expo/vector-icons';
 
 const Task = (props) => {
     const [keyboardStatus, setKeyboardStatus] = useState("hide");
@@ -15,26 +14,32 @@ const Task = (props) => {
                         <View style={styles.square}></View>
                     }
                     {props.status == "completed" &&
-                        <Text style={styles.checksquare}><AntDesign name="checksquare" size={18} color="black" /></Text>
+                        <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#C58C3F" /></Text>
                     }
                 </TouchableOpacity>
 
-                <View style={{ maxWidth: '100%', flex: 1, flexDirection: 'row', position: 'relative' }}>
-                    {props.status == "completed" &&
-                        <View
-                            style={styles.strike}
-                        />
-                    }
-                    <View style={{ flexDirection: 'row'}}>
-                        <Text style={styles.itemText}>{props.text}</Text>
-                        <Schedule text={props.schedule} status={props.status}/>
+                <View style={{ maxWidth: "89%", flexDirection: 'column', position: 'relative' }}>
+                    <View style={{ flexDirection: 'row' }}>
+                        {/* {props.status == "completed" &&
+                            <View
+                                style={styles.strike}
+                            />
+                        } */}
+                        <Text style={[styles.itemText, props.status == "completed"? styles.addStrike: null]}>
+                            {props.text}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text><FontAwesome5 name="calendar-alt" size={14} color="#F6A02D" /></Text>
+                        <Text style={{ color: "#F6A02D", paddingLeft: 4, fontWeight: '600' }}>{props.schedule}</Text>
                     </View>
                 </View>
             </View>
 
             <TouchableOpacity disabled={keyboardStatus == "show" ? true : false} key={props.index} onPress={props.onPressCircular}>
                 {props.status == "completed" &&
-                    <Text><AntDesign name="closecircle" size={17} color={keyboardStatus == "hide" ? "#979DA9" : "#484B52"} /></Text>
+                    <Text>
+                        <AntDesign name="close" size={24} color={keyboardStatus == "hide" ? "#E0B387" : "#484B52"} />
+                    </Text>
                 }
             </TouchableOpacity>
 
@@ -48,9 +53,10 @@ const Task = (props) => {
 
 const styles = StyleSheet.create({
     item: {
-        paddingBottom: 15,
-        paddingTop: 15,
-        paddingLeft: 5,
+        backgroundColor: '#FDFAF7',
+        paddingBottom: 10,
+        paddingTop: 10,
+        paddingLeft: 12,
         paddingRight: 18,
         borderRadius: 10,
         flexDirection: 'row',
@@ -60,17 +66,18 @@ const styles = StyleSheet.create({
     },
     itemLeft: {
         flexDirection: 'row',
-        alignItems: 'center',
+        // alignItems: 'center',
         flexWrap: 'wrap'
     },
     square: {
         width: 16,
         height: 16,
-        borderRadius: 2,
+        borderRadius: 4,
         marginRight: 15,
+        marginTop: 4,
         borderWidth: 1,
         position: 'relative',
-        borderColor: '#444444',
+        borderColor: '#D09950',
         opacity: 0.7
     },
     checksquare: {
@@ -79,21 +86,13 @@ const styles = StyleSheet.create({
         opacity: 0.5,
         position: 'relative'
     },
-    addWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderColor: '#DCDBDB',
-        borderWidth: 0,
-        marginRight: 5,
-        backgroundColor: '#55BCF6'
-    },
     itemText: {
         maxWidth: '100%',
         fontSize: 17,
-        paddingEnd: 5
+        paddingEnd: 5,
+        paddingBottom: 4,
+        fontWeight: '500',
+        color: '#444'
     },
     addStrike: {
         textDecorationLine: 'line-through',
@@ -103,10 +102,10 @@ const styles = StyleSheet.create({
         opacity: 0.3
     },
     strike: {
-        width: '93%',
+        width: '100%',
         zIndex: 1,
         opacity: 0.5,
-        borderBottomColor: 'black',
+        borderBottomColor: '#C8924A',
         borderBottomWidth: 1.3,
         top: 11,
         position: 'absolute'
