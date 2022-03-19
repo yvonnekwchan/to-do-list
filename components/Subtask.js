@@ -1,35 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
-const Subtask = ({ setAddTaskShowUp, setSubtask, addSubtask, removeField, endEditing }) => {
+const Subtask = ({ text, setSubtask, addSubtask, removeInputField }) => {
 
     const [inputText, setInputText] = useState();
+    const [isCompleted, setIsCompleted] = useState(false);
+
     const handleSubmit = () => {
         if (inputText == null || inputText.trim() === '') {
-            removeField();
+            removeInputField();
         } else {
             setSubtask(inputText);
-            addSubtask(); //if click done --> addSubtask, if leave focus --> don't add
+            addSubtask();
             setInputText(null);
         }
     }
 
-    const handleEndEditing = () => {
-        //setSubtask(null);
-        setAddTaskShowUp(true);
-    }
-
     return (
-        <View style={styles.subtaskWrapper}>
-            <View style={styles.square}></View>
-            <TextInput placeholder={'Add a new subtask'}
+        <View style={[styles.subtaskWrapper, isCompleted == true ? styles.completed : null]}>
+            <TouchableOpacity onPress={() => setIsCompleted(!isCompleted)}>
+                {isCompleted == false &&
+                    <View style={styles.square}></View>
+                }
+                {isCompleted == true &&
+                    <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#C58C3F" /></Text>
+                }
+            </TouchableOpacity>
+            <TextInput
+                //value={text}
+                placeholder={'Add a new subtask'}
                 autoFocus={true}
                 returnKeyType='done'
-                //onBlur={handleEndEditing}
                 onChangeText={text => setInputText(text)}
                 onEndEditing={handleSubmit}
-                //onSubmitEditing={handleSubmit}
             />
         </View>
     )
@@ -41,18 +45,28 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: 'center',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        marginTop: 4,
+        marginBottom: 4,
     },
     square: {
         width: 16,
         height: 16,
         borderRadius: 4,
         marginRight: 15,
-        marginTop: 4,
         borderWidth: 1,
         position: 'relative',
         borderColor: '#CCCBB7',
         opacity: 0.7
+    },
+    checksquare: {
+        marginRight: 13,
+        borderColor: '#4A4A4A',
+        opacity: 0.5,
+        position: 'relative'
+    },
+    completed: {
+        opacity: 0.3
     },
 })
 

@@ -31,14 +31,13 @@ const HomeScreen = ({ navigation }) => {
   const [nextWeekTaskSchedules, setNextWeekTaskSchedules] = useState([]);
 
   const [keyboardStatus, setKeyboardStatus] = useState("hide");
-  const keyboardHeight = useKeyboardHeight();
+  //const keyboardHeight = useKeyboardHeight();
 
   const [isPickerShow, setIsPickerShow] = useState(false);
   const [date, setDate] = useState(new Date(Date.now()));
 
   const showPicker = () => {
     setIsPickerShow(true);
-    //Keyboard.dismiss();
   };
 
   const onChange = (event, value) => {
@@ -47,8 +46,6 @@ const HomeScreen = ({ navigation }) => {
       setIsPickerShow(false);
     }
   };
-
-  const [show, setShow] = useState(true);
 
   const today = new Date();
   const laterToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours() + 4, 0).toLocaleString();
@@ -83,15 +80,41 @@ const HomeScreen = ({ navigation }) => {
     }
   }
 
+  const handleAddTask = () => {
+    if (task != "" && task != null) {
+
+      if (schedule == laterToday || schedule == thisEvening || schedule == "default") {
+        setTodayTaskItems([...todayTaskItems, task])
+        setTodayTaskStatus([...todayTaskStatus, "pending"])
+        setTodayTaskSchedules([...todayTaskSchedules, schedule])
+      }
+
+      if (schedule == tomorrow) {
+        setTomorrowTaskItems([...tomorrowTaskItems, task])
+        setTomorrowTaskStatus([...tomorrowTaskStatus, "pending"])
+        setTomorrowTaskSchedules([...tomorrowTaskSchedules, schedule])
+      }
+
+      if (schedule == nextWeek) {
+        setNextWeekTaskItems([...nextWeekTaskItems, task])
+        setNextWeekTaskStatus([...nextWeekTaskStatus, "pending"])
+        setNextWeekTaskSchedules([...nextWeekTaskSchedules, schedule])
+      }
+
+      setSchedule("default");
+      setTask(null);
+    }
+  }
+
+  const assignSchedule = (option) => {
+    if (schedule != option) {
+      setSchedule(option);
+    } else {
+      setSchedule("default");
+    }
+  }
+
   const completeTask = (index, schedule) => {
-    // let itemsCopy = [...taskStatus];
-    // if (itemsCopy[index] == "completed") {
-    //   itemsCopy[index] = "pending"
-    // } else {
-    //   itemsCopy[index] = "completed";
-    //   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // }
-    // setTaskStatus(itemsCopy);
 
     if (schedule == laterToday || schedule == thisEvening || schedule == "default") {
       let todayItemsCopy = [...todayTaskStatus];
@@ -175,52 +198,26 @@ const HomeScreen = ({ navigation }) => {
     }
   }
 
-  const handleAddTask = () => {
-    if (task != "" && task != null) {
-
-      if (schedule == laterToday || schedule == thisEvening || schedule == "default") {
-        setTodayTaskItems([...todayTaskItems, task])
-        setTodayTaskStatus([...todayTaskStatus, "pending"])
-        setTodayTaskSchedules([...todayTaskSchedules, schedule])
-      }
-
-      if (schedule == tomorrow) {
-        setTomorrowTaskItems([...tomorrowTaskItems, task])
-        setTomorrowTaskStatus([...tomorrowTaskStatus, "pending"])
-        setTomorrowTaskSchedules([...tomorrowTaskSchedules, schedule])
-      }
-
-      if (schedule == nextWeek) {
-        setNextWeekTaskItems([...nextWeekTaskItems, task])
-        setNextWeekTaskStatus([...nextWeekTaskStatus, "pending"])
-        setNextWeekTaskSchedules([...nextWeekTaskSchedules, schedule])
-      }
-
-      setSchedule("default");
-      setTask(null);
-    }
-  }
-
-  const assignSchedule = (option) => {
-    if (schedule != option) {
-      setSchedule(option);
-    } else {
-      setSchedule("default");
-    }
-  }
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={[styles.container, keyboardStatus == "hide" ? styles.brightBackground : styles.dimBackground]}>
         <View style={styles.tasksWrapper}>
           <Text style={[styles.sectionTitle, keyboardStatus == "hide" ? styles.brightColor : styles.dimColor]}>
             <MaterialCommunityIcons name="text" size={32} color="#4A4A4A" />
-            <Text style={{fontSize: 24}}>ALL TASKS</Text>
+            <Text style={{ fontSize: 24 }}>ALL TASKS</Text>
           </Text>
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>TODAY</Text>
-              <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('Details')}>
+              <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('AddTask', {
+                pageToNavigate: "Today",
+                todayTaskItems: todayTaskItems,
+                setTodayTaskItems: setTodayTaskItems,
+                todayTaskStatus: todayTaskStatus,
+                setTodayTaskStatus, setTodayTaskStatus,
+                todayTaskSchedules: todayTaskSchedules,
+                setTodayTaskSchedules: setTodayTaskSchedules,
+              })}>
                 <View style={styles.addScheduledTaskWrapper}>
                   <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
                 </View>
@@ -230,7 +227,12 @@ const HomeScreen = ({ navigation }) => {
               {
                 todayTaskItems.map((item, index) => {
                   return (
-                    <Task text={item} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
+                    <TouchableOpacity onPress={() => navigation.navigate('Details',
+                      {
+                        taskName: item
+                      })}>
+                      <Task text={item} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
+                    </TouchableOpacity>
                   )
                 })
               }
@@ -239,7 +241,17 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>TOMORROW</Text>
-              <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('Details')}>
+              <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('AddTask',
+                {
+                  pageToNavigate: "Tomorrow",
+                  tomorrow: tomorrow,
+                  tomorrowTaskItems: tomorrowTaskItems,
+                  setTomorrowTaskItems: setTomorrowTaskItems,
+                  tomorrowTaskStatus: tomorrowTaskStatus,
+                  setTomorrowTaskStatus, setTomorrowTaskStatus,
+                  tomorrowTaskSchedules: tomorrowTaskSchedules,
+                  setTomorrowTaskSchedules: setTomorrowTaskSchedules,
+                })}>
                 <View style={styles.addScheduledTaskWrapper}>
                   <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
                 </View>
@@ -249,7 +261,12 @@ const HomeScreen = ({ navigation }) => {
               {
                 tomorrowTaskItems.map((item, index) => {
                   return (
-                    <Task text={item} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
+                    <TouchableOpacity onPress={() => navigation.navigate('Details',
+                      {
+                        taskName: item
+                      })}>
+                      <Task text={item} key={index} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
+                    </TouchableOpacity>
                   )
                 })
               }
@@ -258,7 +275,17 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>UPCOMING</Text>
-              <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('Details')}>
+              <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('AddTask',
+                {
+                  pageToNavigate: "Upcoming",
+                  nextWeek: nextWeek,
+                  nextWeekTaskItems: nextWeekTaskItems,
+                  setNextWeekTaskItems: setNextWeekTaskItems,
+                  nextWeekTaskStatus: nextWeekTaskStatus,
+                  setNextWeekTaskStatus, setNextWeekTaskStatus,
+                  nextWeekTaskSchedules: nextWeekTaskSchedules,
+                  setNextWeekTaskSchedules: setNextWeekTaskSchedules,
+                })}>
                 {/* …<Text><Ionicons name={"add"} size={26} color="#555" /></Text> */}
                 <View style={styles.addScheduledTaskWrapper}>
                   <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
@@ -314,7 +341,7 @@ const HomeScreen = ({ navigation }) => {
               <TextInput style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
               <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
                 <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
-                  <Ionicons name={keyboardStatus == "hide" ? "add" : "arrow-up-outline"} size={24} color={task != "" && task != null ? "#FFF": "#4A4A4A" } />
+                  <Ionicons name={keyboardStatus == "hide" ? "add" : "arrow-up-outline"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -429,7 +456,7 @@ const styles = StyleSheet.create({
     borderColor: '#F6A02D',
     borderWidth: 1,
     shadowColor: '#F6A02D',
-    shadowOffset: {width: 0, height: 0},
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 5,
   },

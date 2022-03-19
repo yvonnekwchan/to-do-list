@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from './pages/HomeScreen';
+import AddTaskScreen from './pages/AddTaskScreen';
 import DetailsScreen from './pages/DetailsScreen';
 import ProfileScreen from './pages/ProfileScreen';
 import SettingsScreen from './pages/SettingsScreen';
@@ -64,6 +65,13 @@ function App() {
           }}
         />
         <Stack.Screen
+          name="AddTask"
+          component={AddTaskScreen}
+          options={{
+            presentation: 'modal', title: 'Add Task', headerShown: false
+          }}
+        />
+         <Stack.Screen
           name="Details"
           component={DetailsScreen}
           options={{
