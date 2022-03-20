@@ -2,7 +2,7 @@
 // https://aboutreact.com/react-native-bottom-navigation/
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
+import { Alert, View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Modal, Portal, Provider, Button } from 'react-native-paper';
 import Subtask from '../components/Subtask';
@@ -18,9 +18,17 @@ const AddTaskScreen = ({ route, navigation }) => {
   const [addTaskShowUp, setAddTaskShowUp] = useState(true);
 
   const addSubtask = () => {
-    setSubtaskItems([...subtaskItems, subtask]); 
+    setSubtaskItems([...subtaskItems, null]);
     setAddTaskShowUp(false);
   };
+
+  const setCurrentSubtask = (input) => {
+    setSubtask(input);
+  }
+  
+  const updateSubtask = (index) => {
+    subtaskItems[index] = subtask;
+  }
 
   const [task, setTask] = useState();
   const [schedule, setSchedule] = useState("default");
@@ -59,7 +67,7 @@ const AddTaskScreen = ({ route, navigation }) => {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss()}}>
+    <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss() }}>
       <View style={styles.container}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <AntDesign name="arrowleft" size={24} color="black" />
@@ -76,7 +84,7 @@ const AddTaskScreen = ({ route, navigation }) => {
           {
             subtaskItems.map((item, index) => {
               return (
-                <Subtask text={item} key={index} setSubtask={setSubtask} addSubtask={addSubtask} removeInputField={removeInputField} />
+                <Subtask text={item} key={index} index={index} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
               )
             })
           }
@@ -85,6 +93,13 @@ const AddTaskScreen = ({ route, navigation }) => {
               <Text style={styles.addSubtask}>+   New Subtask</Text>
             </TouchableOpacity>
           }
+          {/* {
+            subtaskItems.map((item, index) => {
+              return (
+                <Text>{item}{subtaskItems.length}</Text>
+              )
+            })
+          } */}
         </View>
 
         <View style={{ paddingBottom: 25 }}>

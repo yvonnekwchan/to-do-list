@@ -2,18 +2,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const Subtask = ({ text, setSubtask, addSubtask, removeInputField }) => {
+
+const Subtask = (props) => {
 
     const [inputText, setInputText] = useState();
     const [isCompleted, setIsCompleted] = useState(false);
 
     const handleSubmit = () => {
         if (inputText == null || inputText.trim() === '') {
-            removeInputField();
+            props.removeInputField();
         } else {
-            setSubtask(inputText);
-            addSubtask();
-            setInputText(null);
+            props.updateSubtask();
+            if (props.index == props.numOfSubtasks - 1) {
+                props.addSubtask();
+            }
+            //setInputText(null);
         }
     }
 
@@ -28,11 +31,11 @@ const Subtask = ({ text, setSubtask, addSubtask, removeInputField }) => {
                 }
             </TouchableOpacity>
             <TextInput
-                //value={text}
+                value={inputText}
                 placeholder={'Add a new subtask'}
                 autoFocus={true}
                 returnKeyType='done'
-                onChangeText={text => setInputText(text)}
+                onChangeText={text => { props.setSubtask(text); setInputText(text) }}
                 onEndEditing={handleSubmit}
             />
         </View>
