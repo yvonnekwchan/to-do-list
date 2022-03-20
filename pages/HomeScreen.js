@@ -3,7 +3,6 @@ import { Platform, SafeAreaView, StyleSheet, Text, Dimensions, Touchable, Button
 import Task from '../components/Task';
 import ScheduleOption from '../components/ScheduleOption';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import { Header } from 'react-navigation-stack';
 import KeyboardListener from 'react-native-keyboard-listener';
 import useKeyboardHeight from 'react-native-use-keyboard-height';
 import * as Haptics from 'expo-haptics';
@@ -21,6 +20,7 @@ const HomeScreen = ({ navigation }) => {
   const [todayTaskItems, setTodayTaskItems] = useState([]);
   const [todayTaskStatus, setTodayTaskStatus] = useState([]);
   const [todayTaskSchedules, setTodayTaskSchedules] = useState([]);
+  const [todaySubtaskItems, setTodaySubtaskItems] = useState([[]]);
 
   const [tomorrowTaskItems, setTomorrowTaskItems] = useState([]);
   const [tomorrowTaskStatus, setTomorrowTaskStatus] = useState([]);
@@ -33,6 +33,7 @@ const HomeScreen = ({ navigation }) => {
   const [keyboardStatus, setKeyboardStatus] = useState("hide");
   //const keyboardHeight = useKeyboardHeight();
 
+  //Date Time Picker
   const [isPickerShow, setIsPickerShow] = useState(false);
   const [date, setDate] = useState(new Date(Date.now()));
 
@@ -217,6 +218,8 @@ const HomeScreen = ({ navigation }) => {
                 setTodayTaskStatus, setTodayTaskStatus,
                 todayTaskSchedules: todayTaskSchedules,
                 setTodayTaskSchedules: setTodayTaskSchedules,
+                todaySubtaskItems: todaySubtaskItems,
+                setTodaySubtaskItems: setTodaySubtaskItems
               })}>
                 <View style={styles.addScheduledTaskWrapper}>
                   <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
@@ -229,9 +232,11 @@ const HomeScreen = ({ navigation }) => {
                   return (
                     <TouchableOpacity onPress={() => navigation.navigate('Details',
                       {
-                        taskName: item
+                        taskName: item,
+                        todaySubtasks: todaySubtaskItems[index]
                       })}>
-                      <Task text={item} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
+                        <Text>{todaySubtaskItems[index]}</Text>
+                      <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
                     </TouchableOpacity>
                   )
                 })
@@ -296,7 +301,7 @@ const HomeScreen = ({ navigation }) => {
               {
                 nextWeekTaskItems.map((item, index) => {
                   return (
-                    <Task text={item} status={nextWeekTaskStatus[index]} schedule={getDisplayText(nextWeekTaskSchedules[index])} key={index} onPressSquare={() => completeTask(index, nextWeekTaskSchedules[index])} onPressCircular={() => deleteTask(index, nextWeekTaskSchedules[index])} />
+                    <Task text={item} key={index} status={nextWeekTaskStatus[index]} schedule={getDisplayText(nextWeekTaskSchedules[index])} onPressSquare={() => completeTask(index, nextWeekTaskSchedules[index])} onPressCircular={() => deleteTask(index, nextWeekTaskSchedules[index])} />
                   )
                 })
               }
@@ -305,7 +310,6 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <KeyboardAvoidingView
-          // keyboardVerticalOffset={Header.HEIGHT}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.userInputWrapper}
         >

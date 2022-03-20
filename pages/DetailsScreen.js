@@ -18,15 +18,52 @@ const DetailsScreen = ({ route, navigation }) => {
     const [addTaskShowUp, setAddTaskShowUp] = useState(true);
 
     const addSubtask = () => {
-        setSubtaskItems([...subtaskItems, subtask]);
+        setSubtaskItems([...subtaskItems, null]);
         setAddTaskShowUp(false);
     };
 
-    const removeField = () => {
+    const setCurrentSubtask = (input) => {
+        setSubtask(input);
+    }
+
+    const updateSubtask = (index) => {
+        subtaskItems[index] = subtask;
+    }
+
+    const removeInputField = () => {
         let subtaskItemsCopy = [...subtaskItems];
         subtaskItemsCopy.splice(subtaskItems.length - 1, 1);
         setSubtaskItems(subtaskItemsCopy);
         setAddTaskShowUp(true);
+    }
+
+    const [task, setTask] = useState();
+
+    const handleEditTask = () => {
+        if (task != "" && task != null) {
+
+            if (route.params.pageToNavigate == "Today") {
+                route.params.setTodayTaskItems([...route.params.todayTaskItems, task])
+                route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
+                route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
+                route.params.setTodaySubtaskItems([...route.params.todaySubtaskItems, subtaskItems])
+            }
+
+            if (route.params.pageToNavigate == "Tomorrow") {
+                route.params.setTomorrowTaskItems([...route.params.tomorrowTaskItems, task])
+                route.params.setTomorrowTaskStatus([...route.params.tomorrowTaskStatus, "pending"])
+                route.params.setTomorrowTaskSchedules([...route.params.tomorrowTaskSchedules, route.params.tomorrow])
+            }
+
+            if (route.params.pageToNavigate == "Upcoming") {
+                route.params.setNextWeekTaskItems([...route.params.nextWeekTaskItems, task])
+                route.params.setNextWeekTaskStatus([...route.params.nextWeekTaskStatus, "pending"])
+                route.params.setNextWeekTaskSchedules([...route.params.nextWeekTaskSchedules, route.params.nextWeek])
+            }
+
+            setSchedule("default");
+            setTask(null);
+        }
     }
 
     return (
@@ -45,9 +82,12 @@ const DetailsScreen = ({ route, navigation }) => {
                 <View style={{ paddingBottom: 25 }}>
                     <Text style={styles.subHeading}>Subtasks</Text>
                     {
-                        subtaskItems.map((item, index) => {
+                        route.params.todaySubtasks.map((item, index) => {
                             return (
-                                <Subtask text={item} key={index} subtask={subtask} setSubtask={setSubtask} addSubtask={addSubtask} removeField={removeField} />
+                                <View>
+                                    <Subtask editTask={true} text={item} key={index} index={index} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
+                                    {/* <Text>{item}{route.params.todaySubtasks.length}</Text> */}
+                                </View>
                             )
                         })
                     }

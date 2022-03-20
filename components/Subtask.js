@@ -31,7 +31,7 @@ const Subtask = (props) => {
                 }
             </TouchableOpacity>
             <TextInput
-                value={inputText}
+                value={props.editTask == false? inputText: props.item}
                 placeholder={'Add a new subtask'}
                 autoFocus={true}
                 returnKeyType='done'

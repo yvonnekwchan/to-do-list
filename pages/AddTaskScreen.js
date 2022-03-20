@@ -25,9 +25,16 @@ const AddTaskScreen = ({ route, navigation }) => {
   const setCurrentSubtask = (input) => {
     setSubtask(input);
   }
-  
+
   const updateSubtask = (index) => {
     subtaskItems[index] = subtask;
+  }
+
+  const removeInputField = () => {
+    let subtaskItemsCopy = [...subtaskItems];
+    subtaskItemsCopy.splice(subtaskItems.length - 1, 1);
+    setSubtaskItems(subtaskItemsCopy);
+    setAddTaskShowUp(true);
   }
 
   const [task, setTask] = useState();
@@ -40,6 +47,8 @@ const AddTaskScreen = ({ route, navigation }) => {
         route.params.setTodayTaskItems([...route.params.todayTaskItems, task])
         route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
         route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
+        route.params.setTodaySubtaskItems([...route.params.todaySubtaskItems, subtaskItems])
+        //Alert.alert(task , subtaskItems.length.toString())
       }
 
       if (route.params.pageToNavigate == "Tomorrow") {
@@ -57,13 +66,6 @@ const AddTaskScreen = ({ route, navigation }) => {
       setSchedule("default");
       setTask(null);
     }
-  }
-
-  const removeInputField = () => {
-    let subtaskItemsCopy = [...subtaskItems];
-    subtaskItemsCopy.splice(subtaskItems.length - 1, 1);
-    setSubtaskItems(subtaskItemsCopy);
-    setAddTaskShowUp(true);
   }
 
   return (
@@ -84,7 +86,7 @@ const AddTaskScreen = ({ route, navigation }) => {
           {
             subtaskItems.map((item, index) => {
               return (
-                <Subtask text={item} key={index} index={index} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
+                <Subtask editTask={false} text={item} key={index} index={index} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
               )
             })
           }
@@ -93,13 +95,13 @@ const AddTaskScreen = ({ route, navigation }) => {
               <Text style={styles.addSubtask}>+   New Subtask</Text>
             </TouchableOpacity>
           }
-          {/* {
+          {
             subtaskItems.map((item, index) => {
               return (
                 <Text>{item}{subtaskItems.length}</Text>
               )
             })
-          } */}
+          }
         </View>
 
         <View style={{ paddingBottom: 25 }}>
