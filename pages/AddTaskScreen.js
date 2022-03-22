@@ -8,6 +8,8 @@ import { Modal, Portal, Provider, Button } from 'react-native-paper';
 import Subtask from '../components/Subtask';
 
 const AddTaskScreen = ({ route, navigation }) => {
+  const [forceUpdate, setForceUpdate] = useState(0);
+
   const [visible, setVisible] = React.useState(false);
 
   const showModal = () => setVisible(true);
@@ -47,7 +49,14 @@ const AddTaskScreen = ({ route, navigation }) => {
         route.params.setTodayTaskItems([...route.params.todayTaskItems, task])
         route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
         route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
-        route.params.setTodaySubtaskItems([...route.params.todaySubtaskItems, subtaskItems])
+
+        //route.params.setTodaySubtaskItems([...route.params.todaySubtaskItems, subtaskItems])
+
+        let todaySubtaskItemsCopy = [...route.params.todaySubtaskItems];
+        todaySubtaskItemsCopy[route.params.todaySubtaskItems.length - 1] = subtaskItems;
+        todaySubtaskItemsCopy[route.params.todaySubtaskItems.length] = null;
+        route.params.setTodaySubtaskItems(todaySubtaskItemsCopy);
+
         //Alert.alert(task , subtaskItems.length.toString())
       }
 
@@ -86,7 +95,7 @@ const AddTaskScreen = ({ route, navigation }) => {
           {
             subtaskItems.map((item, index) => {
               return (
-                <Subtask editTask={false} text={item} key={index} index={index} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
+                <Subtask text={item} key={index} index={index} editTask={false} value={forceUpdate} setValue={setForceUpdate} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
               )
             })
           }
@@ -95,13 +104,13 @@ const AddTaskScreen = ({ route, navigation }) => {
               <Text style={styles.addSubtask}>+   New Subtask</Text>
             </TouchableOpacity>
           }
-          {
+          {/* {
             subtaskItems.map((item, index) => {
               return (
                 <Text>{item}{subtaskItems.length}</Text>
               )
             })
-          }
+          } */}
         </View>
 
         <View style={{ paddingBottom: 25 }}>

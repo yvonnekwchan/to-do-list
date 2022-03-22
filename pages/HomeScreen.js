@@ -4,11 +4,11 @@ import Task from '../components/Task';
 import ScheduleOption from '../components/ScheduleOption';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import KeyboardListener from 'react-native-keyboard-listener';
-import useKeyboardHeight from 'react-native-use-keyboard-height';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const HomeScreen = ({ navigation }) => {
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const [task, setTask] = useState();
   const [schedule, setSchedule] = useState("default");
@@ -25,15 +25,15 @@ const HomeScreen = ({ navigation }) => {
   const [tomorrowTaskItems, setTomorrowTaskItems] = useState([]);
   const [tomorrowTaskStatus, setTomorrowTaskStatus] = useState([]);
   const [tomorrowTaskSchedules, setTomorrowTaskSchedules] = useState([]);
+  const [tomorrowSubtaskItems, setTomorrowSubtaskItems] = useState([[]]);
 
   const [nextWeekTaskItems, setNextWeekTaskItems] = useState([]);
   const [nextWeekTaskStatus, setNextWeekTaskStatus] = useState([]);
   const [nextWeekTaskSchedules, setNextWeekTaskSchedules] = useState([]);
 
   const [keyboardStatus, setKeyboardStatus] = useState("hide");
-  //const keyboardHeight = useKeyboardHeight();
 
-  //Date Time Picker
+  /*Date Time Picker
   const [isPickerShow, setIsPickerShow] = useState(false);
   const [date, setDate] = useState(new Date(Date.now()));
 
@@ -47,6 +47,7 @@ const HomeScreen = ({ navigation }) => {
       setIsPickerShow(false);
     }
   };
+  */
 
   const today = new Date();
   const laterToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours() + 4, 0).toLocaleString();
@@ -88,6 +89,7 @@ const HomeScreen = ({ navigation }) => {
         setTodayTaskItems([...todayTaskItems, task])
         setTodayTaskStatus([...todayTaskStatus, "pending"])
         setTodayTaskSchedules([...todayTaskSchedules, schedule])
+        setTodaySubtaskItems([todaySubtaskItems, null])
       }
 
       if (schedule == tomorrow) {
@@ -230,12 +232,26 @@ const HomeScreen = ({ navigation }) => {
               {
                 todayTaskItems.map((item, index) => {
                   return (
-                    <TouchableOpacity onPress={() => navigation.navigate('Details',
-                      {
-                        taskName: item,
-                        todaySubtasks: todaySubtaskItems[index]
-                      })}>
-                        <Text>{todaySubtaskItems[index]}</Text>
+                    <TouchableOpacity onPress={() => {
+                      setForceUpdate(forceUpdate => forceUpdate + 1);
+                      navigation.navigate('Details',
+                        {
+                          value: forceUpdate,
+                          taskName: item,
+                          todaySubtasks: todaySubtaskItems[index],
+                          index: index,
+                          pageToNavigate: "Today",
+                          todayTaskItems: todayTaskItems,
+                          setTodayTaskItems: setTodayTaskItems,
+                          // todayTaskStatus: todayTaskStatus,
+                          // setTodayTaskStatus, setTodayTaskStatus,
+                          // todayTaskSchedules: todayTaskSchedules,
+                          // setTodayTaskSchedules: setTodayTaskSchedules,
+                          // todaySubtaskItems: todaySubtaskItems,
+                          // setTodaySubtaskItems: setTodaySubtaskItems
+                        })
+                    }}>
+                      {/* <Text>{todaySubtaskItems[index]}</Text> */}
                       <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
                     </TouchableOpacity>
                   )
@@ -268,7 +284,12 @@ const HomeScreen = ({ navigation }) => {
                   return (
                     <TouchableOpacity onPress={() => navigation.navigate('Details',
                       {
-                        taskName: item
+                        taskName: item,
+                        todaySubtasks: tomorrowSubtaskItems[index],
+                        index: index,
+                        pageToNavigate: "Tomorrow",
+                        tomorrowTaskItems: tomorrowTaskItems,
+                        setTomorrowTaskItems: setTomorrowTaskItems,
                       })}>
                       <Task text={item} key={index} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
                     </TouchableOpacity>

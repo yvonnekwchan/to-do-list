@@ -8,6 +8,14 @@ const Subtask = (props) => {
     const [inputText, setInputText] = useState();
     const [isCompleted, setIsCompleted] = useState(false);
 
+    const handleOnBlur = () => {
+        if (inputText == null || inputText.trim() === '') {
+            props.removeInputField();
+        } else {
+            props.updateSubtask();
+        }
+    }
+
     const handleSubmit = () => {
         if (inputText == null || inputText.trim() === '') {
             props.removeInputField();
@@ -30,14 +38,20 @@ const Subtask = (props) => {
                     <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#C58C3F" /></Text>
                 }
             </TouchableOpacity>
-            <TextInput
-                value={props.editTask == false? inputText: props.item}
-                placeholder={'Add a new subtask'}
-                autoFocus={true}
-                returnKeyType='done'
-                onChangeText={text => { props.setSubtask(text); setInputText(text) }}
-                onEndEditing={handleSubmit}
-            />
+            {isCompleted == true &&
+                <Text style={styles.addStrike}>{props.editTask == false ? inputText : props.text}</Text>
+            }
+            {isCompleted != true &&
+                <TextInput
+                    value={props.editTask == false ? inputText : props.text}
+                    placeholder={'Add a new subtask'}
+                    autoFocus={true}
+                    returnKeyType='done'
+                    onChangeText={text => { props.setSubtask(text); setInputText(text) }}
+                    onSubmitEditing={handleSubmit}
+                    onBlur={() => { handleOnBlur(); props.setValue(value => value + 1) }}
+                />
+            }
         </View>
     )
 }
@@ -70,6 +84,10 @@ const styles = StyleSheet.create({
     },
     completed: {
         opacity: 0.3
+    },
+    addStrike: {
+        textDecorationLine: 'line-through',
+        textDecorationStyle: 'solid'
     },
 })
 

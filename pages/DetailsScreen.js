@@ -2,19 +2,21 @@
 // https://aboutreact.com/react-native-bottom-navigation/
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Modal, Portal, Provider, Button } from 'react-native-paper';
 import Subtask from '../components/Subtask';
 
 const DetailsScreen = ({ route, navigation }) => {
+    const [forceUpdate, setForceUpdate] = useState(0);
+
     const [visible, setVisible] = React.useState(false);
 
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
 
     const [subtask, setSubtask] = useState();
-    const [subtaskItems, setSubtaskItems] = useState([]);
+    const [subtaskItems, setSubtaskItems] = useState(route.params.todaySubtasks);
     const [addTaskShowUp, setAddTaskShowUp] = useState(true);
 
     const addSubtask = () => {
@@ -37,22 +39,29 @@ const DetailsScreen = ({ route, navigation }) => {
         setAddTaskShowUp(true);
     }
 
-    const [task, setTask] = useState();
+    const [task, setTask] = useState(route.params.taskName);
 
     const handleEditTask = () => {
         if (task != "" && task != null) {
 
             if (route.params.pageToNavigate == "Today") {
-                route.params.setTodayTaskItems([...route.params.todayTaskItems, task])
-                route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
-                route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
-                route.params.setTodaySubtaskItems([...route.params.todaySubtaskItems, subtaskItems])
+
+                let todayTaskItemsCopy = [...route.params.todayTaskItems];
+                todayTaskItemsCopy[route.params.index] = task;
+                route.params.setTodayTaskItems(todayTaskItemsCopy);
+                
+                // route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
+                // route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
             }
 
             if (route.params.pageToNavigate == "Tomorrow") {
-                route.params.setTomorrowTaskItems([...route.params.tomorrowTaskItems, task])
-                route.params.setTomorrowTaskStatus([...route.params.tomorrowTaskStatus, "pending"])
-                route.params.setTomorrowTaskSchedules([...route.params.tomorrowTaskSchedules, route.params.tomorrow])
+
+                let tomorrowTaskItemsCopy = [...route.params.tomorrowTaskItems];
+                tomorrowTaskItemsCopy[route.params.index] = task;
+                route.params.setTomorrowTaskItems(tomorrowTaskItemsCopy);
+
+                // route.params.setTomorrowTaskStatus([...route.params.tomorrowTaskStatus, "pending"])
+                // route.params.setTomorrowTaskSchedules([...route.params.tomorrowTaskSchedules, route.params.tomorrow])
             }
 
             if (route.params.pageToNavigate == "Upcoming") {
@@ -61,7 +70,7 @@ const DetailsScreen = ({ route, navigation }) => {
                 route.params.setNextWeekTaskSchedules([...route.params.nextWeekTaskSchedules, route.params.nextWeek])
             }
 
-            setSchedule("default");
+            //setSchedule("default");
             setTask(null);
         }
     }
@@ -76,17 +85,19 @@ const DetailsScreen = ({ route, navigation }) => {
 
                 <View style={{ paddingBottom: 25 }}>
                     <Text style={styles.subHeading}>Task Name</Text>
-                    <TextInput style={styles.input} placeholder={'Example: Wake up'} value={route.params.taskName} onChangeText={text => setTask(text)} />
+                    <TextInput style={styles.input} placeholder={'Example: Wake up'} value={task} onChangeText={text => setTask(text)} />
                 </View>
 
                 <View style={{ paddingBottom: 25 }}>
+                    <Text>{route.params.todaySubtasks.length}</Text>
                     <Text style={styles.subHeading}>Subtasks</Text>
                     {
-                        route.params.todaySubtasks.map((item, index) => {
+                        subtaskItems.map((item, index) => {
                             return (
                                 <View>
-                                    <Subtask editTask={true} text={item} key={index} index={index} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
-                                    {/* <Text>{item}{route.params.todaySubtasks.length}</Text> */}
+                                    <Subtask text={item} key={index} index={index} editTask={true} value={forceUpdate} setValue={setForceUpdate} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
+                                    {/* <Text>{item} - Length {route.params.todaySubtasks.length}</Text> */}
+                                    {/* <Text>{route.params.value}</Text> */}
                                 </View>
                             )
                         })
