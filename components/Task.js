@@ -14,7 +14,7 @@ const Task = (props) => {
                         <View style={styles.square}></View>
                     }
                     {props.status == "completed" &&
-                        <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#C58C3F" /></Text>
+                        <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#D89335" /></Text>
                     }
                 </TouchableOpacity>
 

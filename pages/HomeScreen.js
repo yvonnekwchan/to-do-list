@@ -96,6 +96,8 @@ const HomeScreen = ({ navigation }) => {
         setTomorrowTaskItems([...tomorrowTaskItems, task])
         setTomorrowTaskStatus([...tomorrowTaskStatus, "pending"])
         setTomorrowTaskSchedules([...tomorrowTaskSchedules, schedule])
+        setTomorrowSubtaskItems([tomorrowSubtaskItems, null])
+
       }
 
       if (schedule == nextWeek) {
@@ -243,15 +245,14 @@ const HomeScreen = ({ navigation }) => {
                           pageToNavigate: "Today",
                           todayTaskItems: todayTaskItems,
                           setTodayTaskItems: setTodayTaskItems,
+                          todaySubtaskItems: todaySubtaskItems,
+                          setTodaySubtaskItems: setTodaySubtaskItems
                           // todayTaskStatus: todayTaskStatus,
                           // setTodayTaskStatus, setTodayTaskStatus,
                           // todayTaskSchedules: todayTaskSchedules,
                           // setTodayTaskSchedules: setTodayTaskSchedules,
-                          // todaySubtaskItems: todaySubtaskItems,
-                          // setTodaySubtaskItems: setTodaySubtaskItems
                         })
                     }}>
-                      {/* <Text>{todaySubtaskItems[index]}</Text> */}
                       <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
                     </TouchableOpacity>
                   )
@@ -272,6 +273,8 @@ const HomeScreen = ({ navigation }) => {
                   setTomorrowTaskStatus, setTomorrowTaskStatus,
                   tomorrowTaskSchedules: tomorrowTaskSchedules,
                   setTomorrowTaskSchedules: setTomorrowTaskSchedules,
+                  tomorrowSubtaskItems: tomorrowSubtaskItems,
+                  setTomorrowSubtaskItems: setTomorrowSubtaskItems
                 })}>
                 <View style={styles.addScheduledTaskWrapper}>
                   <Text><Ionicons name={"add"} size={21} color="#FFF" /></Text>
@@ -285,11 +288,13 @@ const HomeScreen = ({ navigation }) => {
                     <TouchableOpacity onPress={() => navigation.navigate('Details',
                       {
                         taskName: item,
-                        todaySubtasks: tomorrowSubtaskItems[index],
+                        tomorrowSubtasks: tomorrowSubtaskItems[index],
                         index: index,
                         pageToNavigate: "Tomorrow",
                         tomorrowTaskItems: tomorrowTaskItems,
                         setTomorrowTaskItems: setTomorrowTaskItems,
+                        tomorrowSubtaskItems: tomorrowSubtaskItems,
+                        setTomorrowSubtaskItems: setTomorrowSubtaskItems
                       })}>
                       <Task text={item} key={index} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
                     </TouchableOpacity>

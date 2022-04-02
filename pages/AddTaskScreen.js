@@ -30,6 +30,11 @@ const AddTaskScreen = ({ route, navigation }) => {
 
   const updateSubtask = (index) => {
     subtaskItems[index] = subtask;
+    setAddTaskShowUp(true);
+  }
+
+  const editSubtaskItem = (input, index) => {
+    subtaskItems[index] = input;
   }
 
   const removeInputField = () => {
@@ -64,6 +69,11 @@ const AddTaskScreen = ({ route, navigation }) => {
         route.params.setTomorrowTaskItems([...route.params.tomorrowTaskItems, task])
         route.params.setTomorrowTaskStatus([...route.params.tomorrowTaskStatus, "pending"])
         route.params.setTomorrowTaskSchedules([...route.params.tomorrowTaskSchedules, route.params.tomorrow])
+
+        let tomorrowSubtaskItemsCopy = [...route.params.tomorrowSubtaskItems];
+        tomorrowSubtaskItemsCopy[route.params.tomorrowSubtaskItems.length - 1] = subtaskItems;
+        tomorrowSubtaskItemsCopy[route.params.tomorrowSubtaskItems.length] = null;
+        route.params.setTomorrowSubtaskItems(tomorrowSubtaskItemsCopy);
       }
 
       if (route.params.pageToNavigate == "Upcoming") {
@@ -75,6 +85,11 @@ const AddTaskScreen = ({ route, navigation }) => {
       setSchedule("default");
       setTask(null);
     }
+  }
+
+  const updateRouteParam = (input) => {
+    Alert.alert("testing")
+
   }
 
   return (
@@ -95,7 +110,7 @@ const AddTaskScreen = ({ route, navigation }) => {
           {
             subtaskItems.map((item, index) => {
               return (
-                <Subtask text={item} key={index} index={index} editTask={false} value={forceUpdate} setValue={setForceUpdate} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} />
+                <Subtask text={item} key={index} index={index} editTask={false} editSubtaskItem={editSubtaskItem} value={forceUpdate} setValue={setForceUpdate} numOfSubtasks={subtaskItems.length} setSubtask={setCurrentSubtask} addSubtask={addSubtask} updateSubtask={() => updateSubtask(index)} removeInputField={removeInputField} updateValue={updateRouteParam} />
               )
             })
           }
@@ -104,13 +119,6 @@ const AddTaskScreen = ({ route, navigation }) => {
               <Text style={styles.addSubtask}>+   New Subtask</Text>
             </TouchableOpacity>
           }
-          {/* {
-            subtaskItems.map((item, index) => {
-              return (
-                <Text>{item}{subtaskItems.length}</Text>
-              )
-            })
-          } */}
         </View>
 
         <View style={{ paddingBottom: 25 }}>

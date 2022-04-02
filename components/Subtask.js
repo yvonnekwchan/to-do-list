@@ -24,7 +24,6 @@ const Subtask = (props) => {
             if (props.index == props.numOfSubtasks - 1) {
                 props.addSubtask();
             }
-            //setInputText(null);
         }
     }
 
@@ -35,19 +34,19 @@ const Subtask = (props) => {
                     <View style={styles.square}></View>
                 }
                 {isCompleted == true &&
-                    <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#C58C3F" /></Text>
+                    <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#D89335" /></Text>
                 }
             </TouchableOpacity>
             {isCompleted == true &&
-                <Text style={styles.addStrike}>{props.editTask == false ? inputText : props.text}</Text>
+                <Text style={styles.addStrike}>{props.isEditTask == false ? inputText : props.text}</Text>
             }
             {isCompleted != true &&
                 <TextInput
-                    value={props.editTask == false ? inputText : props.text}
+                    value={props.isEditTask == false ? inputText : props.text}
                     placeholder={'Add a new subtask'}
-                    autoFocus={true}
+                    autoFocus={props.isDefaultTask == true ? false : true}
                     returnKeyType='done'
-                    onChangeText={text => { props.setSubtask(text); setInputText(text) }}
+                    onChangeText={text => { props.editSubtaskItem(text, props.index); props.setSubtask(text); setInputText(text) }}
                     onSubmitEditing={handleSubmit}
                     onBlur={() => { handleOnBlur(); props.setValue(value => value + 1) }}
                 />
