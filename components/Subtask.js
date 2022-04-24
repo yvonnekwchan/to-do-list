@@ -6,24 +6,33 @@ import { Ionicons } from '@expo/vector-icons';
 const Subtask = (props) => {
 
     const [inputText, setInputText] = useState();
+    const [modifiedInputText, setModifiedInputText] = useState(props.text);
     const [isCompleted, setIsCompleted] = useState(false);
 
     const handleOnBlur = () => {
-        if (inputText == null || inputText.trim() === '') {
-            props.removeInputField();
+        if (props.isDefaultSubtask == false) {
+            if (inputText == null || inputText.trim() === '') {
+                props.removeInputField();
+            } else {
+                props.setCurrentSubtask(inputText, props.index);
+            }
         } else {
-            props.updateSubtask();
+            props.updateSubtaskItemsArray(modifiedInputText, props.index);
         }
     }
 
     const handleSubmit = () => {
-        if (inputText == null || inputText.trim() === '') {
-            props.removeInputField();
-        } else {
-            props.updateSubtask();
-            if (props.index == props.numOfSubtasks - 1) {
-                props.addSubtask();
+        if (props.isDefaultSubtask == false) {
+            if (inputText == null || inputText.trim() === '') {
+                props.removeInputField();
+            } else {
+                props.setCurrentSubtask(inputText, props.index);
+                if (props.index == props.numOfSubtasks - 1) {
+                    props.addSubtask();
+                }
             }
+        } else {
+            props.updateSubtaskItemsArray(modifiedInputText, props.index);
         }
     }
 
@@ -38,15 +47,15 @@ const Subtask = (props) => {
                 }
             </TouchableOpacity>
             {isCompleted == true &&
-                <Text style={styles.addStrike}>{props.isEditTask == false ? inputText : props.text}</Text>
+                <Text style={styles.addStrike}>{props.isOnEditPage == false ? inputText : props.text}</Text>
             }
             {isCompleted != true &&
                 <TextInput
-                    value={props.isEditTask == false ? inputText : props.text}
+                    value={props.isOnEditPage == true ? modifiedInputText : inputText}
                     placeholder={'Add a new subtask'}
-                    autoFocus={props.isDefaultTask == true ? false : true}
+                    autoFocus={props.isDefaultSubtask == true ? false : true}
                     returnKeyType='done'
-                    onChangeText={text => { props.editSubtaskItem(text, props.index); props.setSubtask(text); setInputText(text) }}
+                    onChangeText={text => { setModifiedInputText(text); setInputText(text) }}
                     onSubmitEditing={handleSubmit}
                     onBlur={() => { handleOnBlur(); props.setValue(value => value + 1) }}
                 />

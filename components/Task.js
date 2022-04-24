@@ -10,12 +10,14 @@ const Task = (props) => {
         <View style={styles.item}>
             <View style={[styles.itemLeft, props.status == "completed" ? styles.completed : null]}>
                 <TouchableOpacity disabled={keyboardStatus == "show" ? true : false} key={props.index} onPress={props.onPressSquare}>
-                    {props.status != "completed" &&
-                        <View style={styles.square}></View>
-                    }
-                    {props.status == "completed" &&
-                        <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#D89335" /></Text>
-                    }
+                   <View style={{paddingLeft: 12, paddingBottom: 20}}>
+                        {props.status != "completed" &&
+                            <View style={styles.square}></View>
+                        }
+                        {props.status == "completed" &&
+                            <Text style={styles.checksquare}><Ionicons name="checkbox" size={18} color="#D89335" /></Text>
+                        }
+                    </View>
                 </TouchableOpacity>
 
                 <View style={{ maxWidth: "89%", flexDirection: 'column', position: 'relative' }}>
@@ -25,7 +27,7 @@ const Task = (props) => {
                                 style={styles.strike}
                             />
                         } */}
-                        <Text style={[styles.itemText, props.status == "completed"? styles.addStrike: null]}>
+                        <Text style={[styles.itemText, props.status == "completed" ? styles.addStrike : null]}>
                             {props.text}</Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
@@ -36,11 +38,13 @@ const Task = (props) => {
             </View>
 
             <TouchableOpacity disabled={keyboardStatus == "show" ? true : false} key={props.index} onPress={props.onPressCircular}>
-                {props.status == "completed" &&
-                    <Text>
-                        <AntDesign name="close" size={24} color={keyboardStatus == "hide" ? "#E0B387" : "#484B52"} />
-                    </Text>
-                }
+                <View style={{ paddingHorizontal: 18 }}>
+                    {props.status == "completed" &&
+                        <Text>
+                            <AntDesign name="close" size={24} color={keyboardStatus == "hide" ? "#E0B387" : "#484B52"} />
+                        </Text>
+                    }
+                </View>
             </TouchableOpacity>
 
             <KeyboardListener
@@ -56,8 +60,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#FDFAF7',
         paddingBottom: 10,
         paddingTop: 10,
-        paddingLeft: 12,
-        paddingRight: 18,
+        //paddingLeft: 12,
+        //paddingRight: 18,
         borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
