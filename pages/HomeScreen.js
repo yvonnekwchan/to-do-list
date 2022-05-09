@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Platform, SafeAreaView, StyleSheet, Text, Modal, Pressable, Dimensions, Touchable, Button, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import Task from '../components/Task';
 import ScheduleOption from '../components/ScheduleOption';
@@ -50,12 +50,39 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleOpenModalPress = () => {
+    setShowInputWrapper(true);
+    setModalVisible(true);
+  };
+
+  const handleModalBackdropPress = () => {
+    setModalVisible(false);
+    setShowInputWrapper(true);
+    setKeyboardStatus("hide");
+  }
+
   useEffect(() => {
-    console.log("modalVisible: " + modalVisible);
-    if (modalVisible == false)
-      setShowInputWrapper(true)
-    console.log("showInputWrapper: " + showInputWrapper);
+    if (modalVisible == false) {
+      setKeyboardStatus("hide")
+    }
   }, [modalVisible]);
+
+  const [isInputFocused, setInputFocused] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    isInputFocused ? inputRef.current.focus() : inputRef.current.blur();
+    console.log(isInputFocused)
+  }, [isInputFocused]);
+
+  const handleInputFocus = () => setInputFocused(true);
+  const handleInputBlur = () => setInputFocused(false);
+
+  useEffect(() => {
+    console.log("1. modalVisible: " + modalVisible);
+    console.log("2. showInputWrapper: " + showInputWrapper);
+    console.log("3. keyboardStatus: " + keyboardStatus)
+  }, [keyboardStatus]);
 
   const today = new Date();
   const laterToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours() + 4, 0).toLocaleString();
@@ -97,7 +124,7 @@ const HomeScreen = ({ navigation }) => {
         setTodayTaskItems([...todayTaskItems, task])
         setTodayTaskStatus([...todayTaskStatus, "pending"])
         setTodayTaskSchedules([...todayTaskSchedules, schedule])
-        setTodaySubtaskItems([todaySubtaskItems, null])
+        //setTodaySubtaskItems([todaySubtaskItems, null])
       }
 
       if (schedule == tomorrow) {
@@ -105,7 +132,6 @@ const HomeScreen = ({ navigation }) => {
         setTomorrowTaskStatus([...tomorrowTaskStatus, "pending"])
         setTomorrowTaskSchedules([...tomorrowTaskSchedules, schedule])
         setTomorrowSubtaskItems([tomorrowSubtaskItems, null])
-
       }
 
       if (schedule == nextWeek) {
@@ -221,9 +247,9 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={[styles.container, keyboardStatus == "show" || modalVisible == true ? styles.dimBackground : styles.brightBackground]}>
+      <View style={[styles.container, keyboardStatus == "show" ? styles.dimBackground : styles.brightBackground]}>
         <View style={styles.tasksWrapper}>
-          <Text style={[styles.sectionTitle, keyboardStatus == "show" || modalVisible == true ? styles.dimColor : styles.brightColor]}>
+          <Text style={[styles.sectionTitle, keyboardStatus == "show" ? styles.dimColor : styles.brightColor]}>
             <MaterialCommunityIcons name="text" size={32} color="#4A4A4A" />
             <Text style={{ fontSize: 24 }}>ALL TASKS</Text>
           </Text>
@@ -256,12 +282,12 @@ const HomeScreen = ({ navigation }) => {
                         {
                           value: forceUpdate,
                           taskName: item,
-                          todaySubtasks: todaySubtaskItems[index], //an array of the subtasks of the current task
+                          todayTaskItemSubtasks: todaySubtaskItems[index], //an array of the subtasks of the current task
                           index: index,
                           pageToNavigate: "Today",
                           todayTaskItems: todayTaskItems,
                           setTodayTaskItems: setTodayTaskItems,
-                          todaySubtaskItems: todaySubtaskItems, //a jagged array [[subtasks of task 1], [subtasks of task 2]...]
+                          todayTasksSubtaskItems: todaySubtaskItems, //a jagged array [[subtasks of task 1], [subtasks of task 2]...]
                           setTodaySubtaskItems: setTodaySubtaskItems
                           // todayTaskStatus: todayTaskStatus,
                           // setTodayTaskStatus, setTodayTaskStatus,
@@ -269,7 +295,7 @@ const HomeScreen = ({ navigation }) => {
                           // setTodayTaskSchedules: setTodayTaskSchedules,
                         })
                     }}>
-                      <Text>{todaySubtaskItems[index]}</Text>
+                      {/* <Text>{todaySubtaskItems[index]}</Text> */}
                       <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
                     </TouchableOpacity>
                   )
@@ -305,12 +331,12 @@ const HomeScreen = ({ navigation }) => {
                     <TouchableOpacity onPress={() => navigation.navigate('Details',
                       {
                         taskName: item,
-                        tomorrowSubtasks: tomorrowSubtaskItems[index], //a 1d array of the subtasks of the task
+                        tomorrowTaskItemSubtasks: tomorrowSubtaskItems[index], //a 1d array of the subtasks of the task
                         index: index,
                         pageToNavigate: "Tomorrow",
                         tomorrowTaskItems: tomorrowTaskItems,
                         setTomorrowTaskItems: setTomorrowTaskItems,
-                        tomorrowSubtaskItems: tomorrowSubtaskItems, //a two-dimensional array [[subtasks of task 1], [subtasks of task 2]...]
+                        tomorrowTasksSubtaskItems: tomorrowSubtaskItems, //a two-dimensional array [[subtasks of task 1], [subtasks of task 2]...]
                         setTomorrowSubtaskItems: setTomorrowSubtaskItems
                       })}>
                       {/* <Text>{tomorrowSubtaskItems[index]}</Text> */}
@@ -360,7 +386,8 @@ const HomeScreen = ({ navigation }) => {
             <View>
               {keyboardStatus == "show" &&
                 <ScrollView horizontal={true} keyboardShouldPersistTaps={'always'} style={styles.OptionWrapper}>
-                  <TouchableOpacity activeOpacity={1} onPress={() => { Keyboard.dismiss(); setShowInputWrapper(false); setModalVisible(true); }}>
+                  <TouchableOpacity activeOpacity={1} onPress={Keyboard.dismiss}
+                    onPressIn={handleOpenModalPress}>
                     <ScheduleOption text="Custom" value={custom} selection={schedule} />
                   </TouchableOpacity>
 
@@ -387,7 +414,9 @@ const HomeScreen = ({ navigation }) => {
               }
 
               <View style={styles.writeTaskWrapper}>
-                <TextInput style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
+                <TextInput ref={inputRef}
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
                 <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
                   <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
                     <Ionicons name={keyboardStatus == "show" ? "arrow-up-outline" : "add"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
@@ -403,20 +432,18 @@ const HomeScreen = ({ navigation }) => {
           animationOutTiming={200}
           transparent={true}
           visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(false);
-          }}
+          onRequestClose={handleModalBackdropPress}
         >
           <TouchableOpacity
             style={styles.container}
             activeOpacity={1}
-            onPressOut={() => { setModalVisible(false); }}
+            onPressOut={handleModalBackdropPress}
           ></TouchableOpacity>
 
           {/* <View style={{ position: 'absolute', bottom: 300 }}>
             <ScrollView horizontal={true} style={styles.OptionWrapper}>
               <TouchableOpacity activeOpacity={1}>
-                <ScheduleOption text="Custom" isSelected={true}/>
+                <ScheduleOption text="Custom" isSelected={true} />
               </TouchableOpacity>
 
               {new Date().getHours() < 14 &&
@@ -530,6 +557,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   bottomPosition: {
+    position: 'absolute',
+    bottom: 0,
+  },
+  topPosition: {
     position: 'absolute',
     bottom: 0,
   },

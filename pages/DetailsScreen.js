@@ -18,7 +18,7 @@ const DetailsScreen = ({ route, navigation }) => {
     const [subtask, setSubtask] = useState();
     const [subtaskItems, setSubtaskItems] = useState([]);
     const [addTaskShowUp, setAddTaskShowUp] = useState(true);
-    const [currentIndex, setCurrentIndex] = useState(true);
+    //const [currentIndex, setCurrentIndex] = useState(true);
 
     const addSubtask = () => {
         setSubtaskItems([...subtaskItems, null]);
@@ -42,20 +42,20 @@ const DetailsScreen = ({ route, navigation }) => {
     const updateSubtaskItemsArray = (input, index) => {
         if (route.params.pageToNavigate == "Tomorrow") {
 
-            route.params.tomorrowSubtasks[index] = input;
+            route.params.tomorrowTaskItemSubtasks[index] = input;
             let subtaskArr = [...route.params.tomorrowSubtasks];
-            let tomorrowSubtaskItemsCopy = [...route.params.tomorrowSubtaskItems];
-            tomorrowSubtaskItemsCopy[route.params.index] = subtaskArr;
-            route.params.setTomorrowSubtaskItems(tomorrowSubtaskItemsCopy);
+            let tomorrowTasksSubtaskItemsCopy = [...route.params.tomorrowTasksSubtaskItems];
+            tomorrowTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
+            route.params.setTomorrowSubtaskItems(tomorrowTasksSubtaskItemsCopy);
         }
 
         if (route.params.pageToNavigate == "Today") {
 
-            route.params.todaySubtasks[index] = input;
-            let subtaskArr = [...route.params.todaySubtasks];
-            let todaySubtaskItemsCopy = [...route.params.todaySubtaskItems];
-            todaySubtaskItemsCopy[route.params.index] = subtaskArr;
-            route.params.setTodaySubtaskItems(todaySubtaskItemsCopy);
+            route.params.todayTaskItemSubtasks[index] = input;
+            let subtaskArr = [...route.params.todayTaskItemSubtasks];
+            let todayTasksSubtaskItemsCopy = [...route.params.todayTasksSubtaskItems];
+            todayTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
+            route.params.setTodaySubtaskItems(todayTasksSubtaskItemsCopy);
         }
     }
 
@@ -71,10 +71,15 @@ const DetailsScreen = ({ route, navigation }) => {
                 route.params.setTodayTaskItems(todayTaskItemsCopy);
 
                 //Edit Subtask Items
-                let subtaskArr = [...route.params.todaySubtasks, ...subtaskItems];
-                let todaySubtaskItemsCopy = [...route.params.todaySubtaskItems];
-                todaySubtaskItemsCopy[route.params.index] = subtaskArr;
-                route.params.setTodaySubtaskItems(todaySubtaskItemsCopy);
+                let subtaskArr = [];
+                if (route.params.todayTaskItemSubtasks != null) {
+                    subtaskArr = [...route.params.todayTaskItemSubtasks, ...subtaskItems];
+                } else {
+                    subtaskArr = [...subtaskItems];
+                }
+                let todayTasksSubtaskItemsCopy = [...route.params.todayTasksSubtaskItems];
+                todayTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
+                route.params.setTodaySubtaskItems(todayTasksSubtaskItemsCopy);
 
                 // route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
                 // route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
@@ -88,10 +93,15 @@ const DetailsScreen = ({ route, navigation }) => {
                 route.params.setTomorrowTaskItems(tomorrowTaskItemsCopy);
 
                 //Edit Subtask Items
-                let subtaskArr = [...route.params.tomorrowSubtasks, ...subtaskItems];
-                let tomorrowSubtaskItemsCopy = [...route.params.tomorrowSubtaskItems];
-                tomorrowSubtaskItemsCopy[route.params.index] = subtaskArr;
-                route.params.setTomorrowSubtaskItems(tomorrowSubtaskItemsCopy);
+                let subtaskArr = [];
+                if (route.params.todayTaskItemSubtasks != null) {
+                    subtaskArr = [...route.params.tomorrowTaskItemSubtasks, ...subtaskItems];
+                } else {
+                    subtaskArr = [...subtaskItems];
+                }
+                let tomorrowTasksSubtaskItemsCopy = [...route.params.tomorrowTasksSubtaskItems];
+                tomorrowTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
+                route.params.setTomorrowSubtaskItems(tomorrowTasksSubtaskItemsCopy);
 
                 // route.params.setTomorrowTaskStatus([...route.params.tomorrowTaskStatus, "pending"])
                 // route.params.setTomorrowTaskSchedules([...route.params.tomorrowTaskSchedules, route.params.tomorrow])
@@ -123,8 +133,8 @@ const DetailsScreen = ({ route, navigation }) => {
 
                 <View style={{ paddingBottom: 25 }}>
                     <Text style={styles.subHeading}>Subtasks</Text>
-                    {route.params.pageToNavigate == "Today" &&
-                        route.params.todaySubtasks.map((item, index) => {
+                    {route.params.pageToNavigate == "Today" && route.params.todayTaskItemSubtasks != null &&
+                        route.params.todayTaskItemSubtasks.map((item, index) => {
                             return (
                                 <View>
                                     <Subtask text={item} key={index} index={index} isOnEditPage={true}
@@ -136,7 +146,7 @@ const DetailsScreen = ({ route, navigation }) => {
                         })
                     }
                     {route.params.pageToNavigate == "Tomorrow" &&
-                        route.params.tomorrowSubtasks.map((item, index) => {
+                        route.params.tomorrowTaskItemSubtasks.map((item, index) => {
                             return (
                                 <View>
                                     <Subtask text={item} key={index} index={index} isOnEditPage={true}

@@ -10,7 +10,7 @@ const Task = (props) => {
         <View style={styles.item}>
             <View style={[styles.itemLeft, props.status == "completed" ? styles.completed : null]}>
                 <TouchableOpacity disabled={keyboardStatus == "show" ? true : false} key={props.index} onPress={props.onPressSquare}>
-                   <View style={{paddingLeft: 12, paddingBottom: 20}}>
+                   <View style={{paddingLeft: 12, paddingTop: 10, paddingBottom: 20}}>
                         {props.status != "completed" &&
                             <View style={styles.square}></View>
                         }
@@ -20,7 +20,7 @@ const Task = (props) => {
                     </View>
                 </TouchableOpacity>
 
-                <View style={{ maxWidth: "89%", flexDirection: 'column', position: 'relative' }}>
+                <View style={{ maxWidth: "89%", flexDirection: 'column', position: 'relative', paddingTop: 10, paddingBottom: 10}}>
                     <View style={{ flexDirection: 'row' }}>
                         {/* {props.status == "completed" &&
                             <View
@@ -58,8 +58,8 @@ const Task = (props) => {
 const styles = StyleSheet.create({
     item: {
         backgroundColor: '#FDFAF7',
-        paddingBottom: 10,
-        paddingTop: 10,
+        //paddingBottom: 10,
+        //paddingTop: 10,
         //paddingLeft: 12,
         //paddingRight: 18,
         borderRadius: 10,
