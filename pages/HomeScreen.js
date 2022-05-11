@@ -51,26 +51,42 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const [isInputFocused, setInputFocused] = useState(false);
+  const [isModalInputFocused, setModalInputFocused] = useState(false);
 
   const inputRef = useRef(null);
+  const modalInputRef = useRef(null);
 
   useEffect(() => {
     console.log(isInputFocused);
     isInputFocused ? inputRef.current.focus() : inputRef.current.blur();
   }, [isInputFocused]);
 
+  useEffect(() => {
+    if (modalVisible == true) {
+      console.log("modal input: "+isModalInputFocused);
+      isModalInputFocused ? modalInputRef.current.focus() : modalInputRef.current.blur();
+    }
+  }, [isModalInputFocused]);
+
   const handleInputFocus = () => setInputFocused(true);
   const handleInputBlur = () => setInputFocused(false);
 
+  const handleModalInputFocus = () => setModalInputFocused(true);
+  const handleModalInputBlur = () => setModalInputFocused(false);
+
   const handleOpenModalPress = () => {
-    setShowInputWrapper(false);
+    inputRef.current.blur();
+    //setShowInputWrapper(false);
     setModalVisible(true);
+    setModalInputFocused(true);
+    //modalInputRef.current.focus();
   };
 
   const handleCloseModalPress = () => {
+    setModalInputFocused(false);
     setModalVisible(false);
-    setShowInputWrapper(true);
-    //setInputFocused(false);
+    //setShowInputWrapper(true);
+    inputRef.current.blur();
   }
 
   const switchSchedule = () => {
@@ -80,8 +96,8 @@ const HomeScreen = ({ navigation }) => {
   }
 
   useEffect(() => {
-    if (schedule == custom && keyboardStatus == "show" && showInputWrapper == true && isInputFocused == true) {
-      setModalVisible(true);
+    if (schedule == custom && keyboardStatus == "show" && showInputWrapper == true && modalVisible == false && isInputFocused == true) {
+      handleOpenModalPress();
     }
   });
 
@@ -385,125 +401,120 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {showModal == false &&
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={[styles.userInputWrapper, showInputWrapper == true ? styles.bottomPosition : null]}
-          >
-            {showInputWrapper == true &&
-              <View>
-                {keyboardStatus == "show" &&
-                  <ScrollView horizontal={true} keyboardShouldPersistTaps={'always'} style={styles.OptionWrapper}>
-                    <TouchableOpacity activeOpacity={1} onPress={() => { Keyboard.dismiss(); }}
-                      onPressIn={() => { handleOpenModalPress(); assignSchedule(custom) }}>
-                      <ScheduleOption text="Custom" value={custom} selection={schedule} />
-                    </TouchableOpacity>
-
-                    {new Date().getHours() < 14 &&
-                      <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(laterToday)}>
-                        <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
-                      </TouchableOpacity>
-                    }
-                    {
-                      <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(thisEvening)}>
-                        <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
-                      </TouchableOpacity>
-                    }
-                    <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(tomorrow)}>
-                      <ScheduleOption text="Tomorrow" value={tomorrow} selection={schedule} />
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(nextWeek)}>
-                      <ScheduleOption text="Next week" value={nextWeek} selection={schedule} />
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={1} style={{ marginRight: 14 }} onPress={() => assignSchedule(someday)}>
-                      <ScheduleOption text="Someday" value={someday} selection={schedule} />
-                    </TouchableOpacity>
-                  </ScrollView>
-                }
-
-                <View style={styles.writeTaskWrapper}>
-                  <TextInput ref={inputRef} onFocus={handleInputFocus} onBlur={handleInputBlur} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
-                  <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
-                    <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
-                      <Ionicons name={keyboardStatus == "show" ? "arrow-up-outline" : "add"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
-                    </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={[styles.userInputWrapper, showInputWrapper == true ? styles.bottomPosition : null]}
+        >
+          {showInputWrapper == true &&
+            <View>
+              {keyboardStatus == "show" &&
+                <ScrollView horizontal={true} keyboardShouldPersistTaps={'always'} style={styles.OptionWrapper}>
+                  <TouchableOpacity activeOpacity={1} onPress={() => { handleOpenModalPress(); assignSchedule(custom) }}>
+                    <ScheduleOption text="Custom" value={custom} selection={schedule} />
                   </TouchableOpacity>
-                </View>
-              </View>
-            }
-          </KeyboardAvoidingView>
-        }
 
-        {showModal == true &&
-          <Modal
-            animationInTiming={0}
-            animationOutTiming={200}
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={handleCloseModalPress}
-          >
-            <TouchableOpacity
-              style={styles.container}
-              activeOpacity={1}
-              onPressOut={handleCloseModalPress}
-            ></TouchableOpacity>
-
-            <View style={{ position: 'absolute', bottom: 300 }}>
+                  {new Date().getHours() < 14 &&
+                    <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(laterToday)}>
+                      <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
+                    </TouchableOpacity>
+                  }
+                  {
+                    <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(thisEvening)}>
+                      <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
+                    </TouchableOpacity>
+                  }
+                  <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(tomorrow)}>
+                    <ScheduleOption text="Tomorrow" value={tomorrow} selection={schedule} />
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(nextWeek)}>
+                    <ScheduleOption text="Next week" value={nextWeek} selection={schedule} />
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={1} style={{ marginRight: 14 }} onPress={() => assignSchedule(someday)}>
+                    <ScheduleOption text="Someday" value={someday} selection={schedule} />
+                  </TouchableOpacity>
+                </ScrollView>
+              }
 
               <View style={styles.writeTaskWrapper}>
-                <TextInput style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
+                <TextInput ref={inputRef} onFocus={handleInputFocus} onBlur={handleInputBlur} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
                 <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
                   <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
-                    <Ionicons name={"arrow-up-outline"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
+                    <Ionicons name={keyboardStatus == "show" ? "arrow-up-outline" : "add"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
                   </View>
                 </TouchableOpacity>
               </View>
             </View>
+          }
+        </KeyboardAvoidingView>
 
-            <View style={styles.centeredView}>
-              <ScrollView horizontal={true} style={[styles.OptionWrapper, { position: 'absolute', bottom: 352 }]}>
-                <TouchableOpacity activeOpacity={1}
-                  onPress={() => { assignSchedule(custom) }}>
-                  <ScheduleOption text="Custom" value={custom} selection={schedule} />
-                </TouchableOpacity>
-                {/* <TouchableOpacity activeOpacity={1}>
+        <Modal
+          animationInTiming={0}
+          animationOutTiming={200}
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={handleCloseModalPress}
+        >
+          <TouchableOpacity
+            style={styles.container}
+            activeOpacity={1}
+            onPressOut={handleCloseModalPress}
+          ></TouchableOpacity>
+
+          <View style={{ position: 'absolute', bottom: 300 }}>
+
+            <View style={styles.writeTaskWrapper}>
+              <TextInput ref={modalInputRef} showSoftInputOnFocus={false} onFocus={handleModalInputFocus} onBlur={handleModalInputBlur} autofocus={true} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
+              <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
+                <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
+                  <Ionicons name={"arrow-up-outline"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.centeredView}>
+            <ScrollView horizontal={true} style={[styles.OptionWrapper, { position: 'absolute', bottom: 352 }]}>
+              <TouchableOpacity activeOpacity={1}
+                onPress={() => { assignSchedule(custom) }}>
+                <ScheduleOption text="Custom" value={custom} selection={schedule} />
+              </TouchableOpacity>
+              {/* <TouchableOpacity activeOpacity={1}>
                 <ScheduleOption text="Custom" isSelected={true} />
               </TouchableOpacity> */}
 
-                {new Date().getHours() < 14 &&
-                  <Pressable onPress={() => assignSchedule(laterToday)}>
-                    <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
-                  </Pressable>
-                }
-                <TouchableOpacity activeOpacity={1} onPress={() => { switchSchedule(); assignSchedule(thisEvening); }}>
-                  <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(tomorrow)}>
-                  <ScheduleOption text="Tomorrow" value={tomorrow} selection={schedule} />
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(nextWeek)}>
-                  <ScheduleOption text="Next week" value={nextWeek} selection={schedule} />
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={1} style={{ marginRight: 14 }} onPress={() => assignSchedule(someday)}>
-                  <ScheduleOption text="Someday" value={someday} selection={schedule} />
-                </TouchableOpacity>
-              </ScrollView>
+              {new Date().getHours() < 14 &&
+                <Pressable onPress={() => assignSchedule(laterToday)}>
+                  <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
+                </Pressable>
+              }
+              <TouchableOpacity activeOpacity={1} onPress={() => { switchSchedule(); assignSchedule(thisEvening); }}>
+                <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
+              </TouchableOpacity>
+              <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(tomorrow)}>
+                <ScheduleOption text="Tomorrow" value={tomorrow} selection={schedule} />
+              </TouchableOpacity>
+              <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(nextWeek)}>
+                <ScheduleOption text="Next week" value={nextWeek} selection={schedule} />
+              </TouchableOpacity>
+              <TouchableOpacity activeOpacity={1} style={{ marginRight: 14 }} onPress={() => assignSchedule(someday)}>
+                <ScheduleOption text="Someday" value={someday} selection={schedule} />
+              </TouchableOpacity>
+            </ScrollView>
 
-              <View style={styles.modalView}>
-                {/* The date picker */}
-                <DateTimePicker
-                  value={date}
-                  mode={'date'}
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  is24Hour={true}
-                  onChange={onChange}
-                  style={styles.datePicker}
-                />
-              </View>
+            <View style={styles.modalView}>
+              {/* The date picker */}
+              <DateTimePicker
+                value={date}
+                mode={'date'}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                is24Hour={true}
+                onChange={onChange}
+                style={styles.datePicker}
+              />
             </View>
-          </Modal>
-        }
-        
+          </View>
+        </Modal>
+
         <KeyboardListener
           onWillShow={() => setKeyboardStatus("show")}
           onWillHide={() => { setKeyboardStatus("hide") }}
