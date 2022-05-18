@@ -2,7 +2,7 @@
 // https://aboutreact.com/react-native-bottom-navigation/
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Text, TextInput, SafeAreaView, StyleSheet, TouchableOpacity, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Modal, Portal, Provider, Button } from 'react-native-paper';
 import Subtask from '../components/Subtask';
@@ -18,44 +18,54 @@ const DetailsScreen = ({ route, navigation }) => {
     const [subtask, setSubtask] = useState();
     const [subtaskItems, setSubtaskItems] = useState([]);
     const [addTaskShowUp, setAddTaskShowUp] = useState(true);
-    //const [currentIndex, setCurrentIndex] = useState(true);
+    const [currentIndex, setCurrentIndex] = useState(true);
 
     const addSubtask = () => {
         setSubtaskItems([...subtaskItems, null]);
         setAddTaskShowUp(false);
     };
 
+    //For editing new tasks
     const setCurrentSubtask = (input, index) => {
-        let subtaskItemsCopy = [...subtaskItems];
-        subtaskItemsCopy[0] = input;
-        setSubtaskItems(subtaskItemsCopy);
-        subtaskItems[index] = input;
+        setSubtask(input);
+        setCurrentIndex(index);
     }
 
-    const removeInputField = () => {
+    useEffect(() => {
+        updateCurrentSubtask(currentIndex);
+    }, [currentIndex])
+
+    const updateCurrentSubtask = (index) => {
         let subtaskItemsCopy = [...subtaskItems];
-        subtaskItemsCopy.splice(subtaskItems.length - 1, 1);
+        subtaskItemsCopy[index] = subtask;
         setSubtaskItems(subtaskItemsCopy);
         setAddTaskShowUp(true);
     }
 
+    const removeInputField = (index) => {
+        let subtaskItemsCopy = [...subtaskItems];
+        subtaskItemsCopy.splice(index, 1);
+        setSubtaskItems(subtaskItemsCopy);
+        setAddTaskShowUp(true);
+    }
+
+    //For editing default tasks
     const updateSubtaskItemsArray = (input, index) => {
-        if (route.params.pageToNavigate == "Tomorrow") {
-
-            route.params.tomorrowTaskItemSubtasks[index] = input;
-            let subtaskArr = [...route.params.tomorrowSubtasks];
-            let tomorrowTasksSubtaskItemsCopy = [...route.params.tomorrowTasksSubtaskItems];
-            tomorrowTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
-            route.params.setTomorrowSubtaskItems(tomorrowTasksSubtaskItemsCopy);
-        }
-
         if (route.params.pageToNavigate == "Today") {
-
             route.params.todayTaskItemSubtasks[index] = input;
             let subtaskArr = [...route.params.todayTaskItemSubtasks];
             let todayTasksSubtaskItemsCopy = [...route.params.todayTasksSubtaskItems];
             todayTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
             route.params.setTodaySubtaskItems(todayTasksSubtaskItemsCopy);
+        }
+        
+        if (route.params.pageToNavigate == "Tomorrow") {
+
+            route.params.tomorrowTaskItemSubtasks[index] = input;
+            let subtaskArr = [...route.params.tomorrowTaskItemSubtasks];
+            let tomorrowTasksSubtaskItemsCopy = [...route.params.tomorrowTasksSubtaskItems];
+            tomorrowTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
+            route.params.setTomorrowSubtaskItems(tomorrowTasksSubtaskItemsCopy);
         }
     }
 
@@ -65,6 +75,7 @@ const DetailsScreen = ({ route, navigation }) => {
         if (task != "" && task != null) {
 
             if (route.params.pageToNavigate == "Today") {
+
                 //Edit Task Name
                 let todayTaskItemsCopy = [...route.params.todayTaskItems];
                 todayTaskItemsCopy[route.params.index] = task;
@@ -77,6 +88,8 @@ const DetailsScreen = ({ route, navigation }) => {
                 } else {
                     subtaskArr = [...subtaskItems];
                 }
+
+                //let subtaskArr = [...route.params.todayTaskItemSubtasks, ...subtaskItems];
                 let todayTasksSubtaskItemsCopy = [...route.params.todayTasksSubtaskItems];
                 todayTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
                 route.params.setTodaySubtaskItems(todayTasksSubtaskItemsCopy);
@@ -93,12 +106,7 @@ const DetailsScreen = ({ route, navigation }) => {
                 route.params.setTomorrowTaskItems(tomorrowTaskItemsCopy);
 
                 //Edit Subtask Items
-                let subtaskArr = [];
-                if (route.params.todayTaskItemSubtasks != null) {
-                    subtaskArr = [...route.params.tomorrowTaskItemSubtasks, ...subtaskItems];
-                } else {
-                    subtaskArr = [...subtaskItems];
-                }
+                let subtaskArr = [...route.params.tomorrowTaskItemSubtasks, ...subtaskItems];
                 let tomorrowTasksSubtaskItemsCopy = [...route.params.tomorrowTasksSubtaskItems];
                 tomorrowTasksSubtaskItemsCopy[route.params.index] = subtaskArr;
                 route.params.setTomorrowSubtaskItems(tomorrowTasksSubtaskItemsCopy);
@@ -125,7 +133,8 @@ const DetailsScreen = ({ route, navigation }) => {
                     <AntDesign name="arrowleft" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.Heading}>Edit task</Text>
-
+                {/* <Text>{route.params.todayTaskItemSubtasks.length}</Text> */}
+                {/* <Text>{subtaskItems.length}</Text> */}
                 <View style={{ paddingBottom: 25 }}>
                     <Text style={styles.subHeading}>Task Name</Text>
                     <TextInput style={styles.input} placeholder={'Example: Wake up'} value={task} onChangeText={text => setTask(text)} />
@@ -133,10 +142,10 @@ const DetailsScreen = ({ route, navigation }) => {
 
                 <View style={{ paddingBottom: 25 }}>
                     <Text style={styles.subHeading}>Subtasks</Text>
-                    {route.params.pageToNavigate == "Today" && route.params.todayTaskItemSubtasks != null &&
+                    {route.params.pageToNavigate == "Today" && route.params.todayTaskItemSubtasks != null && route.params.todayTaskItemSubtasks != "" &&
                         route.params.todayTaskItemSubtasks.map((item, index) => {
                             return (
-                                <View>
+                                <View key={index}>
                                     <Subtask text={item} key={index} index={index} isOnEditPage={true}
                                         updateSubtaskItemsArray={updateSubtaskItemsArray}
                                         isDefaultSubtask={true} value={forceUpdate}
@@ -148,8 +157,8 @@ const DetailsScreen = ({ route, navigation }) => {
                     {route.params.pageToNavigate == "Tomorrow" &&
                         route.params.tomorrowTaskItemSubtasks.map((item, index) => {
                             return (
-                                <View>
-                                    <Subtask text={item} key={index} index={index} isOnEditPage={true}
+                                <View key={index}>
+                                    <Subtask text={item} index={index} isOnEditPage={true}
                                         updateSubtaskItemsArray={updateSubtaskItemsArray}
                                         isDefaultSubtask={true} value={forceUpdate}
                                         setValue={setForceUpdate} numOfSubtasks={subtaskItems.length}
@@ -161,8 +170,8 @@ const DetailsScreen = ({ route, navigation }) => {
                     {
                         subtaskItems.map((item, index) => {
                             return (
-                                <View>
-                                    <Subtask text={item} key={index} index={index} isOnEditPage={true} updateSubtaskItemsArray={updateSubtaskItemsArray}
+                                <View key={index}>
+                                    <Subtask text={item} index={index} isOnEditPage={true} updateSubtaskItemsArray={updateSubtaskItemsArray}
                                         isDefaultSubtask={false} value={forceUpdate} setValue={setForceUpdate} numOfSubtasks={subtaskItems.length} setCurrentSubtask={setCurrentSubtask} addSubtask={addSubtask}
                                         removeInputField={removeInputField} />
                                 </View>

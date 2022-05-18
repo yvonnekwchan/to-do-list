@@ -19,6 +19,7 @@ const AddTaskScreen = ({ route, navigation }) => {
   const [subtaskItems, setSubtaskItems] = useState([]);
   const [addTaskShowUp, setAddTaskShowUp] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(true);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const addSubtask = () => {
     setSubtaskItems([...subtaskItems, null]);
@@ -28,21 +29,25 @@ const AddTaskScreen = ({ route, navigation }) => {
   const setCurrentSubtask = (input, index) => {
     setSubtask(input);
     setCurrentIndex(index);
+    console.log("1")
   }
 
   useEffect(() => {
+    console.log("2")
     updateCurrentSubtask(currentIndex);
   }, [currentIndex])
 
   const updateCurrentSubtask = (index) => {
-    subtaskItems[index] = subtask;
-    //Alert.alert(subtask);
+    let subtaskItemsCopy = [...subtaskItems];
+    subtaskItemsCopy[index] = subtask;
+    setSubtaskItems(subtaskItemsCopy);
     setAddTaskShowUp(true);
+    console.log("3")
   }
 
-  const removeInputField = () => {
+  const removeInputField = (index) => {
     let subtaskItemsCopy = [...subtaskItems];
-    subtaskItemsCopy.splice(subtaskItems.length - 1, 1);
+    subtaskItemsCopy.splice(index, 1);
     setSubtaskItems(subtaskItemsCopy);
     setAddTaskShowUp(true);
   }
@@ -54,18 +59,19 @@ const AddTaskScreen = ({ route, navigation }) => {
     if (task != "" && task != null) {
 
       if (route.params.pageToNavigate == "Today") {
-        route.params.setTodayTaskItems([...route.params.todayTaskItems, task])
+        route.params.setTodayTaskItems([...route.params.todayTaskItemSubtasks, task])
         route.params.setTodayTaskStatus([...route.params.todayTaskStatus, "pending"])
         route.params.setTodayTaskSchedules([...route.params.todayTaskSchedules, schedule])
 
-        //route.params.setTodaySubtaskItems([...route.params.todaySubtaskItems, subtaskItems])
+        //route.params.setTodaySubtaskItems([...route.params.todayTasksSubtaskItems, subtaskItems])
 
-        let todaySubtaskItemsCopy = [...route.params.todaySubtaskItems];
-        todaySubtaskItemsCopy[route.params.todaySubtaskItems.length - 1] = subtaskItems;
-        todaySubtaskItemsCopy[route.params.todaySubtaskItems.length] = null;
-        route.params.setTodaySubtaskItems(todaySubtaskItemsCopy);
+        let todayTasksSubtaskItemsCopy = [...route.params.todayTasksSubtaskItems];
+        todayTasksSubtaskItemsCopy[route.params.todayTasksSubtaskItems.length - 1] = subtaskItems;
+        todayTasksSubtaskItemsCopy[route.params.todayTasksSubtaskItems.length] = null;
+        route.params.setTodaySubtaskItems(todayTasksSubtaskItemsCopy);
 
         //Alert.alert(task, subtaskItems.length.toString())
+        console.log("4")
       }
 
       if (route.params.pageToNavigate == "Tomorrow") {
@@ -93,7 +99,7 @@ const AddTaskScreen = ({ route, navigation }) => {
   }
 
   const updateSubtaskItemsArray = (input, index) => {
-   //dummy function
+    //dummy function
   }
 
   return (
@@ -114,10 +120,10 @@ const AddTaskScreen = ({ route, navigation }) => {
           {
             subtaskItems.map((item, index) => {
               return (
-                <Subtask text={item} key={index} index={index} isOnEditPage={false} 
-                isDefaultSubtask={false} updateSubtaskItemsArray={updateSubtaskItemsArray} 
-                value={forceUpdate} setValue={setForceUpdate} numOfSubtasks={subtaskItems.length} setCurrentSubtask={setCurrentSubtask} addSubtask={addSubtask} 
-                removeInputField={removeInputField}
+                <Subtask text={item} key={index} index={index} isOnEditPage={false}
+                  isDefaultSubtask={false} updateSubtaskItemsArray={updateSubtaskItemsArray}
+                  value={forceUpdate} setValue={() => { setForceUpdate(forceUpdate => forceUpdate + 1); }} numOfSubtasks={subtaskItems.length} setCurrentSubtask={setCurrentSubtask} addSubtask={addSubtask}
+                  removeInputField={removeInputField}
                 />
               )
             })

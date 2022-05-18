@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Platform, SafeAreaView, StyleSheet, Text, Modal, Pressable, Dimensions, Touchable, Button, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import Task from '../components/Task';
 import ScheduleOption from '../components/ScheduleOption';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons, AntDesign } from '@expo/vector-icons';
 import KeyboardListener from 'react-native-keyboard-listener';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -37,17 +37,20 @@ const HomeScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isPickerShow, setIsPickerShow] = useState(false);
   const [date, setDate] = useState(new Date(Date.now()));
+  const [customSchedule, setCustomSchedule] = useState();
   const [showInputWrapper, setShowInputWrapper] = useState(true);
 
-  const showPicker = () => {
-    setIsPickerShow(true);
+  const onChangeDatetime = (event, value) => {
+    setDate(value);
   };
 
-  const onChange = (event, value) => {
-    setDate(value);
-    if (Platform.OS === 'android') {
-      setIsPickerShow(false);
-    }
+  const confirmCustomSchedule = () => {
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+    setCustomSchedule(day + "/" + month + "/" + year + " " + hour + ":" + minutes);
   };
 
   const [isInputFocused, setInputFocused] = useState(false);
@@ -57,13 +60,12 @@ const HomeScreen = ({ navigation }) => {
   const modalInputRef = useRef(null);
 
   useEffect(() => {
-    console.log(isInputFocused);
+    //console.log(isInputFocused);
     isInputFocused ? inputRef.current.focus() : inputRef.current.blur();
   }, [isInputFocused]);
 
   useEffect(() => {
     if (modalVisible == true) {
-      console.log("modal input: "+isModalInputFocused);
       isModalInputFocused ? modalInputRef.current.focus() : modalInputRef.current.blur();
     }
   }, [isModalInputFocused]);
@@ -76,36 +78,33 @@ const HomeScreen = ({ navigation }) => {
 
   const handleOpenModalPress = () => {
     inputRef.current.blur();
-    //setShowInputWrapper(false);
     setModalVisible(true);
-    setModalInputFocused(true);
-    //modalInputRef.current.focus();
   };
 
   const handleCloseModalPress = () => {
-    setModalInputFocused(false);
     setModalVisible(false);
-    //setShowInputWrapper(true);
     inputRef.current.blur();
   }
 
   const switchSchedule = () => {
-    setModalVisible(false);
-    setShowInputWrapper(true);
     setInputFocused(true);
+    setModalVisible(false);
   }
 
   useEffect(() => {
-    if (schedule == custom && keyboardStatus == "show" && showInputWrapper == true && modalVisible == false && isInputFocused == true) {
+    if (modalVisible == true) {
+      setModalInputFocused(true);
+    } else {
+      setModalInputFocused(false);
+    }
+  }, [modalVisible]);
+
+
+  useEffect(() => {
+    if (schedule == custom && keyboardStatus == "show" && modalVisible == false && isInputFocused == true) {
       handleOpenModalPress();
     }
   });
-
-  useEffect(() => {
-    console.log("1. modalVisible: " + modalVisible);
-    console.log("2. showInputWrapper: " + showInputWrapper);
-    console.log("3. keyboardStatus: " + keyboardStatus)
-  }, [keyboardStatus]);
 
   const today = new Date();
   const laterToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours() + 4, 0).toLocaleString();
@@ -147,7 +146,7 @@ const HomeScreen = ({ navigation }) => {
         setTodayTaskItems([...todayTaskItems, task])
         setTodayTaskStatus([...todayTaskStatus, "pending"])
         setTodayTaskSchedules([...todayTaskSchedules, schedule])
-        //setTodaySubtaskItems([todaySubtaskItems, null])
+        setTodaySubtaskItems([...todaySubtaskItems, null])
       }
 
       if (schedule == tomorrow) {
@@ -270,24 +269,25 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={[styles.container, keyboardStatus == "show" || modalVisible == true ? styles.dimBackground : styles.brightBackground]}>
+      <View style={[styles.container, isInputFocused == true || modalVisible == true ? styles.dimBackground : styles.brightBackground]}>
         <View style={styles.tasksWrapper}>
-          <Text style={[styles.sectionTitle, keyboardStatus == "show" || modalVisible == true ? styles.dimColor : styles.brightColor]}>
+          <Text style={[styles.sectionTitle, isInputFocused == true || modalVisible == true ? styles.dimColor : styles.brightColor]}>
             <MaterialCommunityIcons name="text" size={32} color="#4A4A4A" />
             <Text style={{ fontSize: 24 }}>ALL TASKS</Text>
+            {/* <Text>{date.toString}</Text> */}
           </Text>
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>TODAY</Text>
               <TouchableOpacity style={styles.addIcon} onPress={() => navigation.navigate('AddTask', {
                 pageToNavigate: "Today",
-                todayTaskItems: todayTaskItems,
+                todayTaskItemSubtasks: todayTaskItems,
                 setTodayTaskItems: setTodayTaskItems,
                 todayTaskStatus: todayTaskStatus,
                 setTodayTaskStatus, setTodayTaskStatus,
                 todayTaskSchedules: todayTaskSchedules,
                 setTodayTaskSchedules: setTodayTaskSchedules,
-                todaySubtaskItems: todaySubtaskItems,
+                todayTasksSubtaskItems: todaySubtaskItems,
                 setTodaySubtaskItems: setTodaySubtaskItems
               })}>
                 <View style={styles.addScheduledTaskWrapper}>
@@ -299,7 +299,7 @@ const HomeScreen = ({ navigation }) => {
               {
                 todayTaskItems.map((item, index) => {
                   return (
-                    <TouchableOpacity onPress={() => {
+                    <TouchableOpacity key={index} onPress={() => {
                       setForceUpdate(forceUpdate => forceUpdate + 1);
                       navigation.navigate('Details',
                         {
@@ -318,7 +318,6 @@ const HomeScreen = ({ navigation }) => {
                           // setTodayTaskSchedules: setTodayTaskSchedules,
                         })
                     }}>
-                      {/* <Text>{todaySubtaskItems[index]}</Text> */}
                       <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
                     </TouchableOpacity>
                   )
@@ -351,10 +350,10 @@ const HomeScreen = ({ navigation }) => {
               {
                 tomorrowTaskItems.map((item, index) => {
                   return (
-                    <TouchableOpacity onPress={() => navigation.navigate('Details',
+                    <TouchableOpacity key={index} onPress={() => navigation.navigate('Details',
                       {
                         taskName: item,
-                        tomorrowTaskItemSubtasks: tomorrowSubtaskItems[index], //a 1d array of the subtasks of the task
+                        tomorrowSubtasks: tomorrowSubtaskItems[index], //a 1d array of the subtasks of the task
                         index: index,
                         pageToNavigate: "Tomorrow",
                         tomorrowTaskItems: tomorrowTaskItems,
@@ -362,7 +361,6 @@ const HomeScreen = ({ navigation }) => {
                         tomorrowTasksSubtaskItems: tomorrowSubtaskItems, //a two-dimensional array [[subtasks of task 1], [subtasks of task 2]...]
                         setTomorrowSubtaskItems: setTomorrowSubtaskItems
                       })}>
-                      {/* <Text>{tomorrowSubtaskItems[index]}</Text> */}
                       <Task text={item} key={index} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
                     </TouchableOpacity>
                   )
@@ -403,53 +401,49 @@ const HomeScreen = ({ navigation }) => {
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={[styles.userInputWrapper, showInputWrapper == true ? styles.bottomPosition : null]}
+          style={styles.userInputWrapper}
         >
-          {showInputWrapper == true &&
-            <View>
-              {keyboardStatus == "show" &&
-                <ScrollView horizontal={true} keyboardShouldPersistTaps={'always'} style={styles.OptionWrapper}>
-                  <TouchableOpacity activeOpacity={1} onPress={() => { handleOpenModalPress(); assignSchedule(custom) }}>
-                    <ScheduleOption text="Custom" value={custom} selection={schedule} />
-                  </TouchableOpacity>
-
-                  {new Date().getHours() < 14 &&
-                    <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(laterToday)}>
-                      <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
-                    </TouchableOpacity>
-                  }
-                  {
-                    <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(thisEvening)}>
-                      <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
-                    </TouchableOpacity>
-                  }
-                  <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(tomorrow)}>
-                    <ScheduleOption text="Tomorrow" value={tomorrow} selection={schedule} />
-                  </TouchableOpacity>
-                  <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(nextWeek)}>
-                    <ScheduleOption text="Next week" value={nextWeek} selection={schedule} />
-                  </TouchableOpacity>
-                  <TouchableOpacity activeOpacity={1} style={{ marginRight: 14 }} onPress={() => assignSchedule(someday)}>
-                    <ScheduleOption text="Someday" value={someday} selection={schedule} />
-                  </TouchableOpacity>
-                </ScrollView>
-              }
-
-              <View style={styles.writeTaskWrapper}>
-                <TextInput ref={inputRef} onFocus={handleInputFocus} onBlur={handleInputBlur} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
-                <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
-                  <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
-                    <Ionicons name={keyboardStatus == "show" ? "arrow-up-outline" : "add"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
-                  </View>
+          <View>
+            {isInputFocused == true &&
+              <ScrollView horizontal={true} keyboardShouldPersistTaps={'always'} style={styles.OptionWrapper}>
+                <TouchableOpacity activeOpacity={1} onPress={() => { handleOpenModalPress(); assignSchedule(custom) }}>
+                  <ScheduleOption text="Custom" value={custom} selection={schedule} />
                 </TouchableOpacity>
-              </View>
+
+                {new Date().getHours() < 14 &&
+                  <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(laterToday)}>
+                    <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
+                  </TouchableOpacity>
+                }
+                {
+                  <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(thisEvening)}>
+                    <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
+                  </TouchableOpacity>
+                }
+                <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(tomorrow)}>
+                  <ScheduleOption text="Tomorrow" value={tomorrow} selection={schedule} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={1} onPress={() => assignSchedule(nextWeek)}>
+                  <ScheduleOption text="Next week" value={nextWeek} selection={schedule} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={1} style={{ marginRight: 14 }} onPress={() => assignSchedule(someday)}>
+                  <ScheduleOption text="Someday" value={someday} selection={schedule} />
+                </TouchableOpacity>
+              </ScrollView>
+            }
+
+            <View style={styles.writeTaskWrapper}>
+              <TextInput ref={inputRef} onFocus={handleInputFocus} onBlur={handleInputBlur} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
+              <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
+                <View style={[styles.addWrapper, task != "" && task != null ? styles.orangeBgColor : styles.whiteBgColor]}>
+                  <Ionicons name={isInputFocused == true ? "arrow-up-outline" : "add"} size={24} color={task != "" && task != null ? "#FFF" : "#4A4A4A"} />
+                </View>
+              </TouchableOpacity>
             </View>
-          }
+          </View>
         </KeyboardAvoidingView>
 
         <Modal
-          animationInTiming={0}
-          animationOutTiming={200}
           transparent={true}
           visible={modalVisible}
           onRequestClose={handleCloseModalPress}
@@ -461,7 +455,6 @@ const HomeScreen = ({ navigation }) => {
           ></TouchableOpacity>
 
           <View style={{ position: 'absolute', bottom: 300 }}>
-
             <View style={styles.writeTaskWrapper}>
               <TextInput ref={modalInputRef} showSoftInputOnFocus={false} onFocus={handleModalInputFocus} onBlur={handleModalInputBlur} autofocus={true} style={styles.input} placeholder={'I want to...'} value={task} onChangeText={text => setTask(text)} />
               <TouchableOpacity activeOpacity={task != "" && task != null ? 1 : 1} onPress={() => handleAddTask()}>
@@ -476,16 +469,16 @@ const HomeScreen = ({ navigation }) => {
             <ScrollView horizontal={true} style={[styles.OptionWrapper, { position: 'absolute', bottom: 352 }]}>
               <TouchableOpacity activeOpacity={1}
                 onPress={() => { assignSchedule(custom) }}>
-                <ScheduleOption text="Custom" value={custom} selection={schedule} />
+                <ScheduleOption text={customSchedule == null ? "Custom" : customSchedule} value={custom} selection={schedule} />
               </TouchableOpacity>
               {/* <TouchableOpacity activeOpacity={1}>
                 <ScheduleOption text="Custom" isSelected={true} />
               </TouchableOpacity> */}
 
               {new Date().getHours() < 14 &&
-                <Pressable onPress={() => assignSchedule(laterToday)}>
+                <TouchableOpacity onPress={() => { switchSchedule(); assignSchedule(laterToday); }}>
                   <ScheduleOption text="Later today" value={laterToday} selection={schedule} />
-                </Pressable>
+                </TouchableOpacity>
               }
               <TouchableOpacity activeOpacity={1} onPress={() => { switchSchedule(); assignSchedule(thisEvening); }}>
                 <ScheduleOption text="This evening" value={thisEvening} selection={schedule} />
@@ -502,13 +495,25 @@ const HomeScreen = ({ navigation }) => {
             </ScrollView>
 
             <View style={styles.modalView}>
+              <View style={styles.setCustomScheduleWrapper}>
+                <Text style={styles.customTimeDisplayText}>Custom Time</Text>
+                <View style={styles.confirmScheduleButton}>
+                  <TouchableOpacity onPress={confirmCustomSchedule}>
+                    <View style={styles.actionIcon}><AntDesign name="check" size={24} color='rgb(80, 80, 80)' /></View>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleCloseModalPress}>
+                    <View style={styles.actionIcon}><AntDesign name="close" size={24} color='rgb(164, 164, 164)' /></View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               {/* The date picker */}
               <DateTimePicker
                 value={date}
-                mode={'date'}
+                mode={'datetime'}
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                 is24Hour={true}
-                onChange={onChange}
+                onChange={onChangeDatetime}
                 style={styles.datePicker}
               />
             </View>
@@ -578,12 +583,6 @@ const styles = StyleSheet.create({
   },
   userInputWrapper: {
     flexDirection: 'column',
-  },
-  bottomPosition: {
-    position: 'absolute',
-    bottom: 0,
-  },
-  topPosition: {
     position: 'absolute',
     bottom: 0,
   },
@@ -592,7 +591,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#FFD8AB'
+    backgroundColor: '#FFD8AB',
   },
   input: {
     paddingVertical: 10,
@@ -648,7 +647,7 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     width: "100%",
-    zIndex: 999
+    zIndex: 999,
   },
   centeredView: {
     flex: 1,
@@ -660,11 +659,29 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
     backgroundColor: "white",
-    padding: 35,
-    alignItems: "center",
     elevation: 5,
     position: 'absolute',
     bottom: 0,
   },
+  datetimePickerWrapper: {
+    padding: 35,
+    alignItems: "center",
+  },
+  customTimeDisplayText: {
+    alignItems: "flex-start",
+  },
+  setCustomScheduleWrapper: {
+    padding: 20,
+    flexDirection: 'row',
+  },
+  confirmScheduleButton: {
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    paddingRight: 7
+  },
+  actionIcon: {
+    paddingLeft: 20,
+    // backgroundColor: '#000'
+  }
 });
 export default HomeScreen;
