@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Platform, SafeAreaView, StyleSheet, Text, Modal, Pressable, Dimensions, Touchable, Button, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
+import { Platform, SectionList, FlatList, SafeAreaView, StyleSheet, Text, Modal, Pressable, Dimensions, Touchable, Button, View, KeyboardAvoidingView, TouchableWithoutFeedback, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import Task from '../components/Task';
 import ScheduleOption from '../components/ScheduleOption';
 import { MaterialCommunityIcons, Ionicons, AntDesign } from '@expo/vector-icons';
@@ -276,6 +276,7 @@ const HomeScreen = ({ navigation }) => {
             <Text style={{ fontSize: 24 }}>ALL TASKS</Text>
             {/* <Text>{date.toString}</Text> */}
           </Text>
+
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>TODAY</Text>
@@ -295,36 +296,32 @@ const HomeScreen = ({ navigation }) => {
                 </View>
               </TouchableOpacity>
             </View>
-            <View style={styles.taskList}>
-              {
-                todayTaskItems.map((item, index) => {
-                  return (
-                    <TouchableOpacity key={index} onPress={() => {
-                      setForceUpdate(forceUpdate => forceUpdate + 1);
-                      navigation.navigate('Details',
-                        {
-                          value: forceUpdate,
-                          taskName: item,
-                          todayTaskItemSubtasks: todaySubtaskItems[index], //an array of the subtasks of the current task
-                          index: index,
-                          pageToNavigate: "Today",
-                          todayTaskItems: todayTaskItems,
-                          setTodayTaskItems: setTodayTaskItems,
-                          todayTasksSubtaskItems: todaySubtaskItems, //a jagged array [[subtasks of task 1], [subtasks of task 2]...]
-                          setTodaySubtaskItems: setTodaySubtaskItems
-                          // todayTaskStatus: todayTaskStatus,
-                          // setTodayTaskStatus, setTodayTaskStatus,
-                          // todayTaskSchedules: todayTaskSchedules,
-                          // setTodayTaskSchedules: setTodayTaskSchedules,
-                        })
-                    }}>
-                      <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
-                    </TouchableOpacity>
-                  )
-                })
-              }
-            </View>
+
+            <FlatList
+              data={[...todayTaskItems]}
+              inverted={true}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity key={index} onPress={() => {
+                  setForceUpdate(forceUpdate => forceUpdate + 1);
+                  navigation.navigate('Details',
+                    {
+                      value: forceUpdate,
+                      taskName: item,
+                      todayTaskItemSubtasks: todaySubtaskItems[index], //an array of the subtasks of the current task
+                      index: index,
+                      pageToNavigate: "Today",
+                      todayTaskItems: todayTaskItems,
+                      setTodayTaskItems: setTodayTaskItems,
+                      todayTasksSubtaskItems: todaySubtaskItems, //a jagged array [[subtasks of task 1], [subtasks of task 2]...]
+                      setTodaySubtaskItems: setTodaySubtaskItems
+                    })
+                }}>
+                  <Task text={item} key={index} status={todayTaskStatus[index]} schedule={getDisplayText(todayTaskSchedules[index])} onPressSquare={() => completeTask(index, todayTaskSchedules[index])} onPressCircular={() => deleteTask(index, todayTaskSchedules[index])} />
+                </TouchableOpacity>
+              )}
+            />
           </View>
+
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>TOMORROW</Text>
@@ -346,28 +343,28 @@ const HomeScreen = ({ navigation }) => {
                 </View>
               </TouchableOpacity>
             </View>
-            <View style={styles.taskList}>
-              {
-                tomorrowTaskItems.map((item, index) => {
-                  return (
-                    <TouchableOpacity key={index} onPress={() => navigation.navigate('Details',
-                      {
-                        taskName: item,
-                        tomorrowSubtasks: tomorrowSubtaskItems[index], //a 1d array of the subtasks of the task
-                        index: index,
-                        pageToNavigate: "Tomorrow",
-                        tomorrowTaskItems: tomorrowTaskItems,
-                        setTomorrowTaskItems: setTomorrowTaskItems,
-                        tomorrowTasksSubtaskItems: tomorrowSubtaskItems, //a two-dimensional array [[subtasks of task 1], [subtasks of task 2]...]
-                        setTomorrowSubtaskItems: setTomorrowSubtaskItems
-                      })}>
-                      <Task text={item} key={index} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
-                    </TouchableOpacity>
-                  )
-                })
-              }
-            </View>
+
+            <FlatList
+              data={[...tomorrowTaskItems]}
+              inverted={true}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity key={index} onPress={() => navigation.navigate('Details',
+                  {
+                    taskName: item,
+                    tomorrowSubtasks: tomorrowSubtaskItems[index], //a 1d array of the subtasks of the task
+                    index: index,
+                    pageToNavigate: "Tomorrow",
+                    tomorrowTaskItems: tomorrowTaskItems,
+                    setTomorrowTaskItems: setTomorrowTaskItems,
+                    tomorrowTasksSubtaskItems: tomorrowSubtaskItems, //a two-dimensional array [[subtasks of task 1], [subtasks of task 2]...]
+                    setTomorrowSubtaskItems: setTomorrowSubtaskItems
+                  })}>
+                  <Task text={item} key={index} status={tomorrowTaskStatus[index]} schedule={getDisplayText(tomorrowTaskSchedules[index])} onPressSquare={() => completeTask(index, tomorrowTaskSchedules[index])} onPressCircular={() => deleteTask(index, tomorrowTaskSchedules[index])} />
+                </TouchableOpacity>
+              )}
+            />
           </View>
+
           <View style={styles.items}>
             <View style={styles.header}>
               <Text style={styles.heading}>UPCOMING</Text>
@@ -387,15 +384,17 @@ const HomeScreen = ({ navigation }) => {
                 </View>
               </TouchableOpacity>
             </View>
-            <View style={styles.taskList}>
-              {
-                nextWeekTaskItems.map((item, index) => {
-                  return (
-                    <Task text={item} key={index} status={nextWeekTaskStatus[index]} schedule={getDisplayText(nextWeekTaskSchedules[index])} onPressSquare={() => completeTask(index, nextWeekTaskSchedules[index])} onPressCircular={() => deleteTask(index, nextWeekTaskSchedules[index])} />
-                  )
-                })
-              }
-            </View>
+
+            <SectionList
+              sections={[
+                { data: [...nextWeekTaskItems] },
+              ]}
+              inverted={true}
+              renderItem={({ item, index }) => (
+                <Task text={item} key={index} status={nextWeekTaskStatus[index]} schedule={getDisplayText(nextWeekTaskSchedules[index])} onPressSquare={() => completeTask(index, nextWeekTaskSchedules[index])} onPressCircular={() => deleteTask(index, nextWeekTaskSchedules[index])} />
+              )}
+              keyExtractor={(item, index) => index}
+            />
           </View>
         </View>
 
@@ -407,7 +406,7 @@ const HomeScreen = ({ navigation }) => {
             {isInputFocused == true &&
               <ScrollView horizontal={true} keyboardShouldPersistTaps={'always'} style={styles.OptionWrapper}>
                 <TouchableOpacity activeOpacity={1} onPress={() => { handleOpenModalPress(); assignSchedule(custom) }}>
-                  <ScheduleOption text="Custom" value={custom} selection={schedule} />
+                  <ScheduleOption text={customSchedule == null ? "Custom" : customSchedule} value={custom} selection={schedule} />
                 </TouchableOpacity>
 
                 {new Date().getHours() < 14 &&
